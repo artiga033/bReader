@@ -1,0 +1,18 @@
+﻿<div class="feed-item-previewer card">
+    <NavLink href=@($"feed/{Item.SourceFeed.Pk}/item/{Item.Pk}")>
+        <h3>@Item.Title</h3>
+    </NavLink>
+    <span class="text-secondary text-light">
+        @foreach (var i in Item.Authors)
+        {
+            <a href="@(i.Uri ?? "javascript:void;")">@($"{i.Name}<{i.Email}>")</a>
+        }
+    </span>
+    <hr />
+    @((MarkupString)Item.Summary)
+</div>
+
+@code {
+    [Parameter]
+    public FeedItemDto Item { get; set; }
+}

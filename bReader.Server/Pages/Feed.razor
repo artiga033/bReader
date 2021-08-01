@@ -1,0 +1,45 @@
+﻿@page "/feed/{FeedPk:int}"
+@inject IFeedService FeedService
+@inject CommonJsInterop CommonJs
+
+<h3>@currentFeed.Title</h3>
+<summary class="text-secondary text-light">@currentFeed.Description</summary>
+<CascadingValue Value="FeedPk">
+    <ul class="items-container">
+        @foreach (var item in items)
+        {
+            <li>
+                <FeedItemPreviewer Item="item"></FeedItemPreviewer>
+            </li>
+        }
+    </ul>
+</CascadingValue>
+
+@code {
+    [CascadingParameter]
+    public IEnumerable<FeedDto> FeedDtos { get; set; }
+    private FeedDto currentFeed;
+    [Parameter]
+    public int FeedPk { get; set; }
+
+    private ICollection<FeedItemDto> items;
+    private int _lastFeedId;
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // TODO : Here, in blazor server,this method got called twice, the first time , Slug was its default value, nothing set, it's the 2nd time that the param is set!
+        //https://github.com/dotnet/AspNetCore.Docs/blob/main/aspnetcore/5.0/blazor/samples/BlazorServerEFCoreSample/BlazorServerDbContextExample/Pages/ViewContact.razor
+        if (this._lastFeedId != FeedPk)
+        {
+            this.currentFeed = FeedDtos.FirstOrDefault(x => x.Pk == FeedPk);
+            this.items = await FeedService.GetFeedItemsPreviewAsync(FeedPk);
+            this._lastFeedId = FeedPk;
+        }
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (currentFeed != null)
+            await CommonJs.SetTitle(currentFeed.Title ?? currentFeed.SubscribeLink);
+    }
+}

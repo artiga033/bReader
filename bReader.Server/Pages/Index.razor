@@ -1,0 +1,74 @@
+﻿@page "/"
+@inject IFeedService FeedService
+@inject IJSRuntime JSRuntime
+@using System.Linq;
+
+<style>
+    table, td, th {
+        border: 1px solid green;
+    }
+
+    th {
+        background-color: green;
+        color: white;
+    }
+</style>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<form class="display:inline" @onsubmit="async()=> await AddFeed(createDto)">
+    <input type="url" placeholder="SubscrbeLink" @bind="createDto.SubscribeLink">
+    <input type="submit" placeholder="Add" value="Add" />
+</form>
+<table>
+    <tr class="head">
+        <td>SubLink</td>
+        <td>Title</td>
+        <td>Summary</td>
+        <td>ItemCounts</td>
+        <td>Options</td>
+    </tr>
+    @foreach (var i in Feeds)
+    {
+        <tr>
+            <td>@i.SubscribeLink</td>
+            <td>@i.Title</td>
+            <td>@(i.Description??"No Content")</td>
+            <td><button @onclick="async () => await UpdateSource(i.Pk)"> Update</button></td>
+        </tr>
+    }
+</table>
+
+@code
+{
+    private FeedCreateUpdateDto createDto = new FeedCreateUpdateDto();
+    [CascadingParameter]
+    private IEnumerable<FeedDto> Feeds { get; set; } = new List<FeedDto>();
+    //protected override async Task OnInitializedAsync()
+    //{
+    //    //Feeds = await FeedService.GetFeedsAsync();
+    //}
+    private async Task AddFeed(FeedCreateUpdateDto createDto)
+    {
+        await FeedService.AddFeedAsync(createDto);
+        Feeds = await FeedService.GetFeedsAsync();
+    }
+    private async Task UpdateSource(int pk)
+    {
+        try
+        {
+            await FeedService.RefreshFeedAsync(pk);
+            Feeds = await FeedService.GetFeedsAsync();
+        }
+        catch (HttpRequestException hre)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"网络错误:{hre.Message}");
+        }
+        catch (Exception)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "未知错误");
+        }
+    }
+}

@@ -1,0 +1,44 @@
+﻿@page "/feed/{FeedPk:int}/item/{ItemPk:int}"
+@inject IFeedService FeedService
+@inject CommonJsInterop CommonJs
+@using Humanizer
+
+<div class="item-info card">
+    <a href="@(feedItemDto.Links.FirstOrDefault())"><h3>@feedItemDto.Title</h3></a>
+    @feedItemDto.IsFavorite
+    @foreach (var author in feedItemDto.Authors)
+    {
+        <a href="@author.Uri"><span class="text-secondary text-link">@($"{author.Name} <{author.Name}>")</span></a>
+    }
+    @if (feedItemDto.PublishDate.DateTime != default(DateTime))
+    {
+        <span>@feedItemDto.PublishDate.Humanize()</span>
+    }
+
+    @if (feedItemDto.LastUpdatedTime.DateTime != default(DateTime))
+    {
+        <span>@feedItemDto.LastUpdatedTime.Humanize()</span>
+    }
+</div>
+<br />
+<div class="item-view card">
+    @((MarkupString)feedItemDto.Summary)
+    <hr class="hr-fading-info" multiple/>
+    @((MarkupString)feedItemDto.Content)
+</div>
+@code {
+    [Parameter]
+    public int FeedPk { get; set; }
+    [Parameter]
+    public int ItemPk { get; set; }
+    private FeedItemDto feedItemDto;
+    protected override async Task OnParametersSetAsync()
+    {
+        this.feedItemDto = await FeedService.GetFeedItemAsync(ItemPk);
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (feedItemDto != null && feedItemDto.Title != null)
+            await CommonJs.SetTitle(feedItemDto.Title);
+    }
+}
