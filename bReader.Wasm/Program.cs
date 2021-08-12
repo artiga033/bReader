@@ -10,6 +10,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Blazor.Extensions.Storage;
+using BlazorFluentUI;
 
 namespace bReader.Wasm
 {
@@ -23,7 +24,8 @@ namespace bReader.Wasm
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
             builder.Services.AddScoped<IFeedService, FeedDataService>()
                             .AddScoped<CommonJsInterop>();
-            builder.Services.AddStorage();
+
+            builder.Services.AddStorage().AddBlazorFluentUI();
 
             await builder.Build().RunAsync();
         }

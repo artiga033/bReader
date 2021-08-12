@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BlazorFluentUI;
 
 namespace bReader.Server
 {
@@ -33,6 +34,8 @@ namespace bReader.Server
             services.AddServerSideBlazor();
             services.AddDbContextFactory<FeedDbContext>(options =>
                 options.UseSqlite(Configuration.GetConnectionString("bReader")));
+
+            services.AddBlazorFluentUI();
 
             services.AddAutoMapper(typeof(bReader.Shared.MapperProfile));
             services.AddScoped<IFeedService, FeedDataService>();

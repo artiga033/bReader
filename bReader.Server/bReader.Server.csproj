@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="BlazorFluentUI.CoreComponents" Version="5.5.3" />
     <PackageReference Include="Humanizer.Core.zh-Hans" Version="2.11.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.8">
       <PrivateAssets>all</PrivateAssets>
