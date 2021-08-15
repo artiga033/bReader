@@ -1,31 +1,54 @@
 ﻿@inherits LayoutComponentBase
 @inject IFeedService FeedService
-@* Almost every page uses this varible, so we just set it as a CascadingParameter to reduce repeated db query*@
-<CascadingValue Value="feedDtos">
-    <div class="page">
-        <div class="sidebar">
-            <NavMenu />
-        </div>
+@using System.Linq
+@* Almost every page uses this varible, so we just set it as a CascadingParameter to reduce repeated db query, more importantly, share their state*@
+<CascadingValue Value="FeedGroups">
+    <CascadingValue Value="FavoriteFeeds">
+        <CascadingValue TValue="Func<Task>" Value="RefreshLayout">
 
-        <main>
-            <div class="top-row px-4">
-                <h1 id="top-title">
-                </h1>
-                <span id="reader-info">bReader - The Blazor Reader</span>
+            <div class="page">
+                <div class="menu">
+                    <NavMenu />
+                </div>
+                <main>
+                    <div class="top-row">
+                        <h1 id="top-title">Welcome to the Blazor Reader</h1>
+                        <span id="reader-info">bReader - The Blazor Reader</span>
+                    </div>
+
+                    <article class="content">
+                        @Body
+                    </article>
+
+                </main>
             </div>
-
-            <article class="content px-4">
-                @Body
-            </article>
-
-        </main>
-    </div>
+        </CascadingValue>
+    </CascadingValue>
 </CascadingValue>
 @code{
-    private IEnumerable<FeedDto> feedDtos = new List<FeedDto>();
+    private ICollection<FeedGroupDto> FeedGroups { get; set; }
+    private ICollection<FeedDto> FavoriteFeeds { get; set; }= new List<FeedDto>();
+    /// <summary>
+    /// public method to force refresh FeedGroups data, please note this don't include their items.
+    /// </summary>
+    /// <returns></returns>
+    public Func<Task> RefreshLayout { get; set; }
     protected async override Task OnInitializedAsync()
     {
-        if (feedDtos.Count()==0)
-            this.feedDtos = await FeedService.GetFeedsAsync();
+        this.RefreshLayout = async () =>
+        {
+            this.FeedGroups = await FeedService.GetFeedGroupsAsync();
+            this.FavoriteFeeds.Clear();
+            foreach (var group in FeedGroups)
+            {
+                foreach (var i in group.Feeds.Where(x => x.IsFavorite))
+                {
+                    this.FavoriteFeeds.Add(i);
+                }
+            }
+            StateHasChanged();
+        };
+        if (FeedGroups == null || FeedGroups.Count() == 0)
+            await this.RefreshLayout();
     }
 }

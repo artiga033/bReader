@@ -1,4 +1,5 @@
 ﻿@page "/"
+@*@page "/"
 @inject IFeedService FeedService
 @inject IJSRuntime JSRuntime
 @using System.Linq;
@@ -53,14 +54,14 @@ Welcome to your new app.
     private async Task AddFeed(FeedCreateUpdateDto createDto)
     {
         await FeedService.AddFeedAsync(createDto);
-        Feeds = await FeedService.GetFeedsAsync();
+        Feeds = await FeedService.GetFeedGroupsAsync();
     }
     private async Task UpdateSource(int pk)
     {
         try
         {
             await FeedService.RefreshFeedAsync(pk);
-            Feeds = await FeedService.GetFeedsAsync();
+            Feeds = await FeedService.GetFeedGroupsAsync();
         }
         catch (HttpRequestException hre)
         {
@@ -71,4 +72,4 @@ Welcome to your new app.
             await JSRuntime.InvokeVoidAsync("alert", "未知错误");
         }
     }
-}
+}*@

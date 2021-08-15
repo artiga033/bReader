@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using bReader.Server.Data;
 
 namespace bReader.Server.Migrations
 {
     [DbContext(typeof(FeedDbContext))]
-    partial class FeedDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210815122638_r")]
+    partial class r
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

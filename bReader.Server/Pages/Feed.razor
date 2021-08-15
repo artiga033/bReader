@@ -2,7 +2,17 @@
 @inject IFeedService FeedService
 @inject CommonJsInterop CommonJs
 
+<PrimaryButton @onclick="async()=> await FeedService.SetItemsReadAsync(items.Select(x=>x.Pk))">全部设为已读</PrimaryButton>
+    @if (currentFeed.IsFavorite)
+{
+    <IconButton IconName="FavoriteStarFill" Style="color:gold" OnClick="async () => await SetCurrentFeedNotFavoriteAsync()"></IconButton>
+}
+else
+{
+    <IconButton IconName="FavoriteStar" OnClick="async ()=> await SetCurrentFeedFavoriteAsync()"></IconButton>
+}
 <h3>@currentFeed.Title</h3>
+
 <summary class="text-secondary text-light">@currentFeed.Description</summary>
 <CascadingValue Value="FeedPk">
     <ul class="items-container">
@@ -17,22 +27,55 @@
 
 @code {
     [CascadingParameter]
-    public IEnumerable<FeedDto> FeedDtos { get; set; }
-    private FeedDto currentFeed;
+    public Func<Task> RefreshLayout { get; set; }
+    [CascadingParameter]
+    public ICollection<FeedGroupDto> FeedGroups { get; set; }
     [Parameter]
     public int FeedPk { get; set; }
 
     private ICollection<FeedItemDto> items;
+    private FeedDto currentFeed;
     private int _lastFeedId;
 
+    private async Task SetItemsReadAsync(IEnumerable<int> pks)
+    {
+        await FeedService.SetItemsReadAsync(pks);
+        foreach (var i in items)
+        {
+            i.IsRead = true;
+        }
+    }
+    private async Task SetItemsNotReadAsync(IEnumerable<int> pks)
+    {
+        await FeedService.SetItemsNotReadAsync(pks);
+        foreach (var i in items)
+        {
+            i.IsRead = false;
+        }
+    }
+    private async Task SetCurrentFeedFavoriteAsync()
+    {
+        await FeedService.SetFeedsFavoriteAsync(new[] { currentFeed.Pk });
+        await RefreshLayout();
+    }
+    private async Task SetCurrentFeedNotFavoriteAsync()
+    {
+        await FeedService.SetFeedsNotFavoriteAsync(new[] { currentFeed.Pk });
+        await RefreshLayout();
+    }
 
     protected override async Task OnParametersSetAsync()
     {
         // TODO : Here, in blazor server,this method got called twice, the first time , Slug was its default value, nothing set, it's the 2nd time that the param is set!
         //https://github.com/dotnet/AspNetCore.Docs/blob/main/aspnetcore/5.0/blazor/samples/BlazorServerEFCoreSample/BlazorServerDbContextExample/Pages/ViewContact.razor
+        foreach (var item in FeedGroups)
+        {
+            var entity = item.Feeds.FirstOrDefault(x => x.Pk == FeedPk);
+            if (entity != null)
+                this.currentFeed = entity;
+        }
         if (this._lastFeedId != FeedPk)
         {
-            this.currentFeed = FeedDtos.FirstOrDefault(x => x.Pk == FeedPk);
             this.items = await FeedService.GetFeedItemsPreviewAsync(FeedPk);
             this._lastFeedId = FeedPk;
         }

@@ -1,30 +1,41 @@
 ﻿@inject IFeedService FeedService
+@using System.Linq
+@using BlazorFluentUI.Routing
+@using BlazorFluentUI.Themes.Default
 
-<div class="top-row pl-4 navbar navbar-dark">
-    <a class="navbar-brand" href="">bReader.Server</a>
-    <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-</div>
-
-<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-
-        @foreach (var feed in FeedDtos)
-        {
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href=@($"feed/{feed.Pk}")>
-                     @feed.Title
-                </NavLink>
-            </div>
-        }
+<Stack Horizontal="false" VerticalFill="false">
+    <div class="top-row">
+        <span class="navbar-toggler"><IconButton AriaLabel="NavCollapseIcon" IconName="GlobalNavButton" @onclick="ToggleNavMenu"></IconButton></span>
+        <span style="color:darkcyan;text-align:center;">bReader</span>
+        <span> <IconButton IconName="@themeIcon" @onclick="()=>SwitchTheme()"></IconButton></span>
+    </div>
+    <nav class="@NavMenuCssClass">
+        <Nav>
+            <BlazorFluentUI.Routing.NavLink Name="首页" IconName="Home" Url=""></BlazorFluentUI.Routing.NavLink>
+            <BlazorFluentUI.Routing.NavLink Name="选项" IconName="Settings" Url="settings"></BlazorFluentUI.Routing.NavLink>
+            <hr />
+            <NavLinkGroup Name="收藏" CollapseByDefault="false">
+                <div @onclick="ToggleNavMenu">
+                    @foreach (var fav in FavoriteFeeds)
+                    {
+                        <BlazorFluentUI.Routing.NavLink Name="@fav.Title" Url=@($"feed/{fav.Pk}")></BlazorFluentUI.Routing.NavLink>
+                    }
+                </div>
+            </NavLinkGroup>
+            @foreach (var group in FeedGroups)
+            {
+                <NavLinkGroup Name="@group.Name" CollapseByDefault="true">
+                    <div @onclick="ToggleNavMenu">
+                        @foreach (var feed in group.Feeds)
+                        {
+                            <BlazorFluentUI.Routing.NavLink Name="@feed.Title" Url=@($"feed/{feed.Pk}")></BlazorFluentUI.Routing.NavLink>
+                        }
+                    </div>
+                </NavLinkGroup>
+            }
+        </Nav>
     </nav>
-</div>
+</Stack>
 
 @code {
     private bool collapseNavMenu = true;
@@ -35,10 +46,40 @@
     {
         collapseNavMenu = !collapseNavMenu;
     }
+    //[CascadingParameter]
+    //private IEnumerable<FeedDto> FeedDtos { get; set; } = new List<FeedDto>();
     [CascadingParameter]
-    private IEnumerable<FeedDto> FeedDtos { get; set; } = new List<FeedDto>();
-    //protected async override Task OnInitializedAsync()
-    //{
-    //    this.feedDtos = await FeedService.GetFeedsAsync();
-    //}
+    private ICollection<FeedGroupDto> FeedGroups { get; set; }
+    [CascadingParameter]
+    private ICollection<FeedDto> FavoriteFeeds { get; set; }
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        customTheme = ThemeProvider?.Theme.Palette.GetType() == typeof(DefaultPaletteDark);
+    }
+
+
+    [Inject]
+    public ThemeProvider? ThemeProvider { get; set; }
+    private bool customTheme;
+    private string? dark;
+    private string themeIcon => customTheme ? "ClearNight" : "Sunny";
+    private Task SwitchTheme()
+    {
+        customTheme = !customTheme;
+        if (customTheme)
+        {
+            var palette = new DefaultPaletteDark();
+            ThemeProvider?.UpdateTheme(palette, new DefaultSemanticColorsDark(palette), new DefaultSemanticTextColorsDark(palette));
+
+            //dark = $"background-color: {ThemeProvider?.Theme.SemanticColors.BodyBackground}";
+
+        }
+        else
+        {
+            ThemeProvider?.UpdateTheme(new DefaultPalette());
+            dark = "";
+        }
+        return Task.CompletedTask;
+    }
 }

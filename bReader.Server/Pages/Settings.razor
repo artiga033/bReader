@@ -1,6 +1,134 @@
 ﻿@page "/settings"
+@inject IFeedService FeedService
+@inject CommonJsInterop JsInterop
+@using BlazorFluentUI.Lists
+@using System.Windows.Input
 <h3>Settings</h3>
+<Pivot>
+    <PivotItem HeaderText="RSS订阅管理">
+        <Dialog Title="添加订阅" IsOpen=@addDialogIsOpen IsBlocking="false" OnDismiss="args=>addDialogIsOpen = false">
+            <ChildContent>
+                <TextField Label="订阅地址/URL" Placeholder="https://example.com/feed/" @bind-Value="this.FeedToAdd.SubscribeLink"></TextField>
+                <Toggle Label="设为收藏" @bind-Checked="this.FeedToAdd.IsFavorite"></Toggle>
+                <Dropdown ItemsSource="FeedGroupsDropDownOption" Label="分组" @bind-SelectedOption="GroupIdOfFeedToAdd"></Dropdown>
+            </ChildContent>
+            <FooterTemplate>
+                <PrimaryButton Text="OK" OnClick="async ()=>  await AddFeedAsync(this.FeedToAdd,Convert.ToInt32(GroupIdOfFeedToAdd.Key))" />
+                <DefaultButton Text="Cancel" OnClick="()=>this.addDialogIsOpen=false" />
+            </FooterTemplate>
+        </Dialog>
+        <Stack>
+            <CommandBar Items="commandBarItems" />
+            @* if you delete this <div> tag, BlazorFluentUI would throw an exception, a JSON Eccption. Why? Why!*@
+            <div data-is-scrollable="true" style="height:60vh;overflow-y:auto;">
+                <DetailsList ItemsSource="Feeds"
+                             Columns="Columns"
+                             GetKey=@(item => item.Pk)
+                             LayoutMode="DetailsListLayoutMode.Justified"
+                             TItem="FeedDto"
+                             Selection="selection"
+                             SelectionMode="SelectionMode.Multiple">
+                </DetailsList>
+            </div>
+        </Stack>
+    </PivotItem>
+    <PivotItem HeaderText="设置">
+        <ProgressIndicator PercentComplete="feedRefreshPercent" Description="@progressDescription"></ProgressIndicator>
+        <PrimaryButton Text="刷新所有RSS源" OnClick="async () => await RefreshAllFeeds()"></PrimaryButton>
+    </PivotItem>
+</Pivot>
 
 @code {
-    
+    [CascadingParameter]
+    public Func<Task> RefreshLayout { get; set; }
+    [CascadingParameter]
+    private ICollection<FeedGroupDto> FeedGroups { get; set; }
+    private IEnumerable<DropdownOption> FeedGroupsDropDownOption => FeedGroups.Select(x => new DropdownOption() { Key = x.Id.ToString(), Text = x.Name });
+    private IEnumerable<CommandBarItem> commandBarItems;
+
+    bool addDialogIsOpen;
+    private FeedCreateUpdateDto FeedToAdd;
+    private IDropdownOption GroupIdOfFeedToAdd;
+    private ICommand AddCommand;
+
+    System.Collections.Generic.List<FeedDto> Feeds => GetFeedsFromGrouped(FeedGroups);
+    Selection<FeedDto> selection = new Selection<FeedDto>();
+    public System.Collections.Generic.List<IDetailsRowColumn<FeedDto>> Columns = new();
+    public System.Collections.Generic.List<IDetailsRowColumn<FeedDto>> CustomColumns = new();
+
+    private Progress<int> feedRefreshCompleted = new();
+    private decimal feedRefreshPercent;
+
+    protected override Task OnInitializedAsync()
+    {
+        //a Call from command cant display the dialog even if wrapped a level of method
+        this.AddCommand = new RelayCommand((o) =>
+        {
+            this.FeedToAdd = new();
+            addDialogIsOpen = true;
+            StateHasChanged();
+        });
+        commandBarItems = new CommandBarItem[]
+        {
+                new CommandBarItem(){IconName="Add",Text="新增",Command=AddCommand}
+        };
+        selection.GetKey = (item => item.Pk);
+        //Columns.Add(new DetailsRowColumn<FeedDto>("Key", x => x.Pk) { MaxWidth = 70, Index = 0 });
+        Columns.Add(new DetailsRowColumn<FeedDto>("源地址", x => x.SubscribeLink) { MinWidth = 150, Index = 1, IsResizable = true });
+        Columns.Add(new DetailsRowColumn<FeedDto>("标题", x => x.Title!) { Index = 2, MaxWidth = 70, IsResizable = true });
+        Columns.Add(new DetailsRowColumn<FeedDto>("分组", x => x.Group.Name) { Index = 3, MaxWidth = 50 });
+        Columns.Add(new DetailsRowColumn<FeedDto, FeedDto>("操作", x => x)
+        {
+            Index = 4,
+            ColumnItemTemplate = obj =>@<IconButton IconName="Delete" OnClick="async ()=>await DeleteFeedAsync(obj.Pk)" />
+        });
+
+        this.feedRefreshCompleted.ProgressChanged += OnRefreshProgressChanged;
+        base.OnInitializedAsync();
+        return Task.CompletedTask;
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JsInterop.SetTitle("设置");
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private string progressDescription = "";
+    private async Task RefreshAllFeeds()
+    {
+        var t = FeedService.RefreshAllFeedsAsync(System.Threading.CancellationToken.None, feedRefreshCompleted);
+        await t.ContinueWith((t) => this.progressDescription = "刷新成功");
+        await RefreshLayout();
+    }
+
+    private void OnRefreshProgressChanged(object sender, int e)
+    {
+        this.feedRefreshPercent = (decimal)e / Feeds.Count;
+        this.progressDescription = $"正在刷新rss源...{e}/{Feeds.Count}";
+        StateHasChanged();
+    }
+    private async Task DeleteFeedAsync(int pk)
+    {
+        await FeedService.DeleteFeedAsync(pk);
+        await RefreshLayout();
+        //StateHasChanged();
+    }
+    private async Task AddFeedAsync(FeedCreateUpdateDto createDto, int groupId)
+    {
+        await FeedService.AddFeedAsync(createDto, groupId);
+        await RefreshLayout();
+    }
+    private System.Collections.Generic.List<FeedDto> GetFeedsFromGrouped(ICollection<FeedGroupDto> groups)
+    {
+        System.Collections.Generic.List<FeedDto> r = new();
+        foreach (var g in groups)
+        {
+            foreach (var f in g.Feeds)
+            {
+                r.Add(f);
+            }
+        }
+        return r;
+    }
 }
+

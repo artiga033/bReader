@@ -17,6 +17,6 @@ namespace bReader.Shared.Models
         /// Get or set the value of whether the feed has been marked as "Favorite".
         /// </summary>
         public bool IsFavorite { get; set; }
-        public FeedGroupDto FeedGroup { get; set; }
+        public string FeedGroupName { get; set; }
     }
 }

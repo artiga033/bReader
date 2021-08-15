@@ -23,10 +23,11 @@ namespace bReader.Shared.Models
         /// </summary>
         public bool IsFavorite { get; set; }
 
+        [Required]
         public FeedGroup Group { get; set; }
 
         #region The SyndicationFeed Properties
-        public string Title { get; set; }
+        public string Title { get; set; } = "";
         /// <summary>
         /// Serilized json of <see cref="ICollection{PersonDto}"/>
         /// </summary>

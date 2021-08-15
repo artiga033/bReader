@@ -1,4 +1,4 @@
-﻿@page "/feed/{FeedPk:int}/item/{ItemPk:int}"
+﻿@page "/feeditem/{ItemPk:int}"
 @inject IFeedService FeedService
 @inject CommonJsInterop CommonJs
 @using Humanizer
@@ -23,12 +23,10 @@
 <br />
 <div class="item-view card">
     @((MarkupString)feedItemDto.Summary)
-    <hr class="hr-fading-info" multiple/>
+    <hr class="hr-fading-info" multiple />
     @((MarkupString)feedItemDto.Content)
 </div>
 @code {
-    [Parameter]
-    public int FeedPk { get; set; }
     [Parameter]
     public int ItemPk { get; set; }
     private FeedItemDto feedItemDto;
@@ -38,6 +36,8 @@
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (firstRender)
+            await FeedService.SetItemsReadAsync(new[] { this.ItemPk });
         if (feedItemDto != null && feedItemDto.Title != null)
             await CommonJs.SetTitle(feedItemDto.Title);
     }

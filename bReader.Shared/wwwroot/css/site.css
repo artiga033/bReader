@@ -4,19 +4,6 @@ html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
-body {
-    background-color: #fbf2e3;
-}
-
-a, .btn-link {
-    color: #0366d6;
-}
-
-.btn-primary {
-    color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
-}
 
 .content {
     padding-top: 1.1rem;
@@ -63,25 +50,24 @@ a, .btn-link {
         content: "An error has occurred."
     }
 
-.card {
-    background-color: white;
-    box-shadow: 0 20px 40px -14px rgba(0, 0, 0, 0.25);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    border-left: 1rem;
-    border-color: cornflowerblue;
+/*h1,h2,h3,h4,h5,h6{
+    display:inline;
 }
-
+*/
 ul {
-    display: flex;
-    flex-wrap: wrap;
     list-style: none;
     margin: 0;
     padding: 0;
 }
-
 li {
-    display: flex;
+    list-style:none;
     padding: 1rem;
 }
+.text-secondary {
+    color: var(--palette-NeutralSecondary) 
+}
+
+a.text-secondary:focus, a.text-secondary:hover {
+    color: var(--palette-Blue)
+}
+

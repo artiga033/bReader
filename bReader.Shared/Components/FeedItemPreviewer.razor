@@ -1,18 +1,35 @@
-﻿<div class="feed-item-previewer card">
-    <NavLink href=@($"feed/{Item.SourceFeed.Pk}/item/{Item.Pk}")>
-        <h3>@Item.Title</h3>
-    </NavLink>
-    <span class="text-secondary text-light">
-        @foreach (var i in Item.Authors)
-        {
-            <a href="@(i.Uri ?? "javascript:void;")">@($"{i.Name}<{i.Email}>")</a>
-        }
+﻿@using BlazorFluentUI
+@using Humanizer
+<div class=@($"feed-item-previewer card {(Item.IsRead?string.Empty:notReadClass)}")>
+    <span class="item-basic-info">
+        <span class="headline">
+            <NavLink href=@($"feeditem/{Item.Pk}")>
+                <h3>@Item.Title</h3>
+            </NavLink>
+        </span>
+        <span>
+            <span title="发布时间">
+                <Icon IconName="TimeEntry" />@Item.PublishDate.Humanize()
+            </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <span title="更新时间">
+                <Icon IconName="ReminderTime" />@Item.LastUpdatedTime.Humanize()
+            </span>
+        </span>
     </span>
-    <hr />
+    @foreach (var i in Item.Authors)
+    {
+        <a href="@(i.Uri ?? "javascript:void;")" class="text-secondary">@($"{i.Name}<{i.Email}>")</a>
+    }
     @((MarkupString)Item.Summary)
 </div>
 
 @code {
-    [Parameter]
-    public FeedItemDto Item { get; set; }
+        [Parameter]
+        public FeedItemDto Item { get; set; }
+    private const string notReadClass = "not-read";
+
+    protected override void OnInitialized()
+    {
+
+    }
 }

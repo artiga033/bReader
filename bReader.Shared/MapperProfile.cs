@@ -47,6 +47,8 @@ namespace bReader.Shared
             CreateMap<Feed, FeedDto>();
             CreateMap<FeedItemUpdateDto, FeedItem>();
             CreateMap<FeedCreateUpdateDto, Feed>();
+            CreateMap<FeedGroup, FeedGroupDto>();
+            CreateMap<FeedGroupCreateDto, FeedGroup>();
         }
     }
     public class JsonDeserializeConverter<TDestination> : ITypeConverter<string, TDestination>
