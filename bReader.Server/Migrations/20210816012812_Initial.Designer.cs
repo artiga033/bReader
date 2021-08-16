@@ -9,7 +9,7 @@ using bReader.Server.Data;
 namespace bReader.Server.Migrations
 {
     [DbContext(typeof(FeedDbContext))]
-    [Migration("20210812014735_Initial")]
+    [Migration("20210816012812_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -42,7 +42,7 @@ namespace bReader.Server.Migrations
                     b.Property<string>("Generator")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("GroupId")
+                    b.Property<int>("GroupId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("ImageUrl")
@@ -91,6 +91,13 @@ namespace bReader.Server.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Groups");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = -1,
+                            Name = "默认"
+                        });
                 });
 
             modelBuilder.Entity("bReader.Shared.Models.FeedItem", b =>
@@ -146,7 +153,9 @@ namespace bReader.Server.Migrations
                 {
                     b.HasOne("bReader.Shared.Models.FeedGroup", "Group")
                         .WithMany("Feeds")
-                        .HasForeignKey("GroupId");
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Group");
                 });
@@ -155,7 +164,8 @@ namespace bReader.Server.Migrations
                 {
                     b.HasOne("bReader.Shared.Models.Feed", "SourceFeed")
                         .WithMany("Items")
-                        .HasForeignKey("SourceFeedPk");
+                        .HasForeignKey("SourceFeedPk")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("SourceFeed");
                 });

@@ -28,7 +28,7 @@ namespace bReader.Server.Migrations
                     SubscribeLink = table.Column<string>(type: "TEXT", nullable: true),
                     IsRead = table.Column<bool>(type: "INTEGER", nullable: false),
                     IsFavorite = table.Column<bool>(type: "INTEGER", nullable: false),
-                    GroupId = table.Column<int>(type: "INTEGER", nullable: true),
+                    GroupId = table.Column<int>(type: "INTEGER", nullable: false),
                     Title = table.Column<string>(type: "TEXT", nullable: true),
                     Authors = table.Column<string>(type: "TEXT", nullable: true),
                     LastUpdatedTime = table.Column<long>(type: "INTEGER", nullable: false),
@@ -49,7 +49,7 @@ namespace bReader.Server.Migrations
                         column: x => x.GroupId,
                         principalTable: "Groups",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -79,8 +79,13 @@ namespace bReader.Server.Migrations
                         column: x => x.SourceFeedPk,
                         principalTable: "Feeds",
                         principalColumn: "Pk",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.InsertData(
+                table: "Groups",
+                columns: new[] { "Id", "Name" },
+                values: new object[] { -1, "默认" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_FeedItems_SourceFeedPk",

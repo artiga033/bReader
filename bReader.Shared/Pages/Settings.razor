@@ -61,7 +61,6 @@
 
     protected override Task OnInitializedAsync()
     {
-        //a Call from command cant display the dialog even if wrapped a level of method
         this.AddCommand = new RelayCommand((o) =>
         {
             this.FeedToAdd = new();
@@ -71,7 +70,8 @@
         commandBarItems = new CommandBarItem[]
         {
                 new CommandBarItem(){IconName="Add",Text="新增",Command=AddCommand}
-        };
+            };
+
         selection.GetKey = (item => item.Pk);
         //Columns.Add(new DetailsRowColumn<FeedDto>("Key", x => x.Pk) { MaxWidth = 70, Index = 0 });
         Columns.Add(new DetailsRowColumn<FeedDto>("源地址", x => x.SubscribeLink) { MinWidth = 150, Index = 1, IsResizable = true });
@@ -82,6 +82,8 @@
             Index = 4,
             ColumnItemTemplate = obj =>@<IconButton IconName="Delete" OnClick="async ()=>await DeleteFeedAsync(obj.Pk)" />
         });
+
+        this.GroupIdOfFeedToAdd = FeedGroupsDropDownOption.FirstOrDefault();
 
         this.feedRefreshCompleted.ProgressChanged += OnRefreshProgressChanged;
         base.OnInitializedAsync();
@@ -117,6 +119,7 @@
     {
         await FeedService.AddFeedAsync(createDto, groupId);
         await RefreshLayout();
+        this.addDialogIsOpen = false;
     }
     private System.Collections.Generic.List<FeedDto> GetFeedsFromGrouped(ICollection<FeedGroupDto> groups)
     {

@@ -44,6 +44,7 @@ else
         {
             i.IsRead = true;
         }
+        StateHasChanged();
     }
     private async Task SetItemsNotReadAsync(IEnumerable<int> pks)
     {
@@ -52,6 +53,7 @@ else
         {
             i.IsRead = false;
         }
+        StateHasChanged();
     }
     private async Task SetCurrentFeedFavoriteAsync()
     {

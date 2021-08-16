@@ -89,6 +89,13 @@ namespace bReader.Server.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Groups");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = -1,
+                            Name = "默认"
+                        });
                 });
 
             modelBuilder.Entity("bReader.Shared.Models.FeedItem", b =>
