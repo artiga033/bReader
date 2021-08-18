@@ -19,7 +19,7 @@ namespace bReader.Shared.Services
         public Task<ICollection<FeedDto>> GetFavoriteFeedsAsync();
         public Task<ICollection<FeedItemDto>> GetFavoriteFeedItemsAsync();
         public Task<ICollection<FeedItemDto>> GetFeedItemsPreviewAsync(int pk);
-        public Task<FeedItemDto> GetFeedItemAsync(int Pk);
+        public Task<FeedItemDto> GetFeedItemAsync(int pk);
 
         /// <summary>
         /// Update feed from the feed's SubscribeLink, and save the result.

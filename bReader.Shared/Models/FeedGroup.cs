@@ -10,7 +10,7 @@ namespace bReader.Shared.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public ICollection<Feed> Feeds { get; set; }
+        public ICollection<Feed> Feeds { get; set; } = new List<Feed>();
     }
     public class FeedGroupDto
     {

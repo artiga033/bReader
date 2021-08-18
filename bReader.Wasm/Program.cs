@@ -9,9 +9,8 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Blazor.Extensions.Storage;
 using BlazorFluentUI;
-
+using Blazored.LocalStorage;
 namespace bReader.Wasm
 {
     public class Program
@@ -19,14 +18,14 @@ namespace bReader.Wasm
         public static async Task Main(string[] args)
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
-            builder.RootComponents.Add<App>("#app");
+            builder.RootComponents.Add<bReader.Shared.App>("#app");
 
-            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-            builder.Services//.AddScoped<IFeedService, FeedDataService>()
+            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)});
+            builder.Services.AddScoped<IFeedService, FeedDataService>()
                             .AddScoped<CommonJsInterop>();
 
-            builder.Services.AddStorage().AddBlazorFluentUI();
-
+            builder.Services.AddBlazoredLocalStorage().AddBlazorFluentUI();
+            builder.Services.AddAutoMapper(typeof(bReader.Shared.MapperProfile));
             await builder.Build().RunAsync();
         }
     }

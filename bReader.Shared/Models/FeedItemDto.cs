@@ -24,7 +24,7 @@ namespace bReader.Shared.Models
         public ICollection<Uri> Links { get; set; }
         public DateTimeOffset LastUpdatedTime { get; set; }
         public DateTimeOffset PublishDate { get; set; }
-        public Feed SourceFeed { get; set; }
+        public FeedDto SourceFeed { get; set; }
         public string Title { get; set; }
         public string Summary { get; set; }
     }

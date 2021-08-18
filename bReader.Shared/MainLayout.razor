@@ -26,7 +26,7 @@
     </CascadingValue>
 </CascadingValue>
 @code{
-    private ICollection<FeedGroupDto> FeedGroups { get; set; }
+    private ICollection<FeedGroupDto> FeedGroups { get; set; } = new List<FeedGroupDto>();
     private ICollection<FeedDto> FavoriteFeeds { get; set; }= new List<FeedDto>();
     /// <summary>
     /// public method to force refresh FeedGroups data, please note this don't include their items.
