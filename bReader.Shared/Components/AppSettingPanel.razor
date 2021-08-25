@@ -1,0 +1,25 @@
+﻿@inject ISettingService SettingService
+<NumericTextField Label="RSS源更新周期(分钟)" @bind-Value="@AppSettings["SourceUpdatePeriod"]" @bind-Value:event="OnChange"></NumericTextField>
+<PrimaryButton Text="保存设置" OnClick="async()=>await this.SaveSettingsAsync()"></PrimaryButton>
+<Text style=@resultVisibility> <Icon IconName=@saveStatusIcon />@(saveSuccess?"保存成功":"保存失败")</Text>
+@code {
+    private Dictionary<string, string> AppSettings { get; set; }
+    private bool saveSuccess, savecomplete;
+    private string saveStatusIcon => saveSuccess ? "CheckMark" : "ErrorBadge";
+    private string resultVisibility => $"visibility:{(savecomplete ? "visible" : "hidden")}";
+    protected async override Task OnInitializedAsync()
+    {
+        this.AppSettings = await SettingService.GetSettingsAsync();
+        InitDic(AppSettings);
+        await base.OnInitializedAsync();
+    }
+    protected async Task SaveSettingsAsync()
+    {
+        saveSuccess = await SettingService.SaveSettingsAsync(AppSettings);
+        savecomplete = true;
+    }
+    private void InitDic(Dictionary<string, string> dic)
+    {
+        this.AppSettings.AddIfNone("SourceUpdatePeriod", "60");
+    }
+}

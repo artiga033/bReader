@@ -19,6 +19,7 @@ namespace bReader.Server.Data
             modelBuilder.Entity<Feed>().HasIndex(x => x.SubscribeLink).IsUnique();
             modelBuilder.Entity<FeedItem>().HasOne(X => X.SourceFeed).WithMany(x => x.Items).OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<FeedGroup>().HasData(new FeedGroup() { Id = -1, Name = "默认" });
+            modelBuilder.Entity<AppSetting>().HasIndex(x => x.Key).IsUnique();
             // https://blog.dangl.me/archive/handling-datetimeoffset-in-sqlite-with-entity-framework-core/
             // SQLite does not have proper support for DateTimeOffset via Entity Framework Core, see the limitations
             // here: https://docs.microsoft.com/en-us/ef/core/providers/sqlite/limitations#query-limitations
@@ -42,5 +43,6 @@ namespace bReader.Server.Data
         public DbSet<Feed> Feeds { get; set; }
         public DbSet<FeedItem> FeedItems { get; set; }
         public DbSet<FeedGroup> Groups { get; set; }
+        public DbSet<AppSetting> Settings { get; set; }
     }
 }

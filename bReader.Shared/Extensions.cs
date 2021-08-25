@@ -43,5 +43,10 @@ namespace bReader.Shared
         {
             throw new NotImplementedException();
         }
+        public static void AddIfNone<Tkey,TValue> (this IDictionary<Tkey,TValue> dictionary,Tkey key,TValue value)
+        {
+            if (!dictionary.ContainsKey(key))
+                dictionary.Add(key,value);
+        }
     }
 }
