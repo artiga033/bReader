@@ -42,6 +42,8 @@ namespace bReader.Shared.Models
         public string Summary { get; set; }
     }
 
+
+    // TODO: A better comparer is required, for most sites/generators don't exactly fill all the fields like pubDate and UpdateTime
     /// <summary>
     /// Compares if the two FeedItem is same 'old', that is , they has sameId and same LastUpdatedTime(if any)
     /// </summary>

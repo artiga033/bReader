@@ -78,10 +78,7 @@ namespace bReader.Server.Services
             await FetchAndUpdateFeedItems(entity, context);
             await context.SaveChangesAsync();
         }
-        public Task RefreshAllFeedsAsync()
-        {
-            throw new NotImplementedException();
-        }
+        public Task RefreshAllFeedsAsync() => RefreshAllFeedsAsync(CancellationToken.None, null);
         public async Task RefreshAllFeedsAsync(CancellationToken cancellationToken, IProgress<int> progress)
         {
             using var context = _factory.CreateDbContext();
@@ -91,17 +88,16 @@ namespace bReader.Server.Services
             {
                 try
                 {
-                    //TODO : This line got stuck for a long time
                     await FetchAndUpdateFeedItems(feed, context);
                 }
                 catch
                 {/*do nothing, that is, wot't add one on the progress*/}
-                progress.Report(++count);
+                progress?.Report(++count);
             }
             await context.SaveChangesAsync();
         }
-        public Task RefreshAllFeedsAsync(IProgress<int> progress) { throw new NotImplementedException(); }
-        public Task RefreshAllFeedsAsync(CancellationToken cancellationToken) { throw new NotImplementedException(); }
+        public Task RefreshAllFeedsAsync(IProgress<int> progress) => RefreshAllFeedsAsync(CancellationToken.None, progress);
+        public Task RefreshAllFeedsAsync(CancellationToken cancellationToken) => RefreshAllFeedsAsync(cancellationToken, null);
         public async Task<bool> AddFeedAsync(FeedCreateUpdateDto createDto, int groupId)
         {
             using var context = _factory.CreateDbContext();
