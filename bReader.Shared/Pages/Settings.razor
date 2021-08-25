@@ -19,9 +19,9 @@
             </FooterTemplate>
         </Dialog>
         <Stack>
-                <CommandBar Items="commandBarItems"/>
-                <PrimaryButton Text="刷新所有RSS源" OnClick="async () => await RefreshAllFeeds()"></PrimaryButton>
+                <PrimaryButton Text="刷新所有RSS源" OnClick="async () => await RefreshAllFeeds()" Style="width:10em;align-self:flex-end;"></PrimaryButton>
                 <ProgressIndicator PercentComplete="feedRefreshPercent" Description="@progressDescription"></ProgressIndicator>
+                <CommandBar Items="commandBarItems"/>
             @* if you delete this <div> tag, BlazorFluentUI would throw an exception, a JSON Eccption. Why? Why!*@
             <div data-is-scrollable="true" style="height:60vh;overflow-y:auto;">
                 <DetailsList ItemsSource="Feeds"

@@ -10,16 +10,11 @@
     protected async override Task OnInitializedAsync()
     {
         this.AppSettings = await SettingService.GetSettingsAsync();
-        InitDic(AppSettings);
         await base.OnInitializedAsync();
     }
     protected async Task SaveSettingsAsync()
     {
         saveSuccess = await SettingService.SaveSettingsAsync(AppSettings);
         savecomplete = true;
-    }
-    private void InitDic(Dictionary<string, string> dic)
-    {
-        this.AppSettings.AddIfNone("SourceUpdatePeriod", "60");
     }
 }

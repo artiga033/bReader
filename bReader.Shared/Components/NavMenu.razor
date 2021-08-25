@@ -9,8 +9,10 @@
     </div>
     <nav class="@NavMenuCssClass">
         <Nav>
-            <BlazorFluentUI.Routing.NavLink Name="首页" IconName="Home" Url=""></BlazorFluentUI.Routing.NavLink>
-            <BlazorFluentUI.Routing.NavLink Name="选项" IconName="Settings" Url="settings"></BlazorFluentUI.Routing.NavLink>
+            <div @onclick="ToggleNavMenu">
+                <BlazorFluentUI.Routing.NavLink Name="首页" IconName="Home" Url=""></BlazorFluentUI.Routing.NavLink>
+                <BlazorFluentUI.Routing.NavLink Name="选项" IconName="Settings" Url="settings"></BlazorFluentUI.Routing.NavLink>
+            </div>
             <hr />
             <NavLinkGroup Name="收藏" CollapseByDefault="false">
                 <div @onclick="ToggleNavMenu">
