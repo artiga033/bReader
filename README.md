@@ -24,7 +24,7 @@ Download from [release](https://github.com/artiga033/bReader/releases), make sur
 
 ### Configuration 配置
 
-Blazor Server is using a .NET Generic Host hosting its service with inner Kestrel. So you may just configure the `appsettngs.json` like any other ASP.NET Core App. Check [this on MSDN](https://docs.microsoft.com/zh-cn/aspnet/core/fundamentals/servers/kestrel/endpoints?view=aspnetcore-5.0) for detail.
+Blazor Server is using a .NET Generic Host hosting its service with inner Kestrel. So you may just configure the `appsettngs.json` like any other ASP.NET Core App. Check [this on MSDN](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel/endpoints?view=aspnetcore-5.0) for detail.
 
 Blazor Server 使用.NET 泛型主机的 Kestrel 服务器提供服务，可以像配置任何此类 ASP.NET Core 应用程序一样配置它的`appsettings.json`。参考 MSDN 的[这篇文章](https://docs.microsoft.com/zh-cn/aspnet/core/fundamentals/servers/kestrel/endpoints?view=aspnetcore-5.0)。
 
