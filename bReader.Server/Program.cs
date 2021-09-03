@@ -1,11 +1,14 @@
 using bReader.Server.Data;
 using bReader.Shared;
 using bReader.Shared.Services;
+using bReader.Shared.Utils;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace bReader.Server
 {
@@ -33,8 +36,11 @@ namespace bReader.Server
 
         protected static void InitSettings(ISettingService settingService)
         {
-            Dictionary<string, string> dic = settingService.GetSettingsAsync().Result;
-            dic.AddIfNone("SourceUpdatePeriod", "60");
+            Dictionary<string, string> dic = settingService.GetAllSettingsAsync().Result;
+            foreach (var field in typeof(SettingKeyMap).GetFields())
+            {
+                dic.AddIfNone((string)field.GetValue(null), field.GetCustomAttribute<DefaultValueAttribute>()?.Value??"");
+            }
 
             settingService.SaveSettingsAsync(dic);
         }
