@@ -1,35 +1,101 @@
 ﻿@using BlazorFluentUI
 @using Humanizer
-<div class=@($"feed-item-previewer card {(Item.IsRead?string.Empty:notReadClass)}")>
-    <span class="item-basic-info">
-        <span class="headline">
-            <NavLink href=@($"feeditem/{Item.Pk}")>
-                <h3>@Item.Title</h3>
-            </NavLink>
-        </span>
-        <span>
-            <span title="发布时间">
-                <Icon IconName="TimeEntry" />@Item.PublishDate.Humanize()
-            </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <span title="更新时间">
-                <Icon IconName="ReminderTime" />@Item.LastUpdatedTime.Humanize()
-            </span>
-        </span>
-    </span>
-    @foreach (var i in Item.Authors)
-    {
-        <a href="@(i.Uri ?? "javascript:void;")" class="text-secondary">@($"{i.Name}<{i.Email}>")</a>
-    }
-    @((MarkupString)Item.Summary)
+
+<div>
+    <PrimaryButton @onclick="async()=> await FeedService.SetItemsReadAsync(items.Select(x=>x.Pk))">全部设为已读</PrimaryButton>
+    <ul class="items-container">
+        @foreach (var item in items)
+        {
+            <li>
+                <div class=@($"feed-item-previewer card {(item.IsRead ? string.Empty : NotReadClass)}")>
+                    <span class="item-basic-info">
+                        <span class="headline">
+                            <NavLink href=@($"feeditem/{item.Pk}")>
+                                <h3>@item.Title</h3>
+                            </NavLink>
+                        </span>
+                        <span>
+                            <span title="发布时间">
+                                <Icon IconName="TimeEntry" />@item.PublishDate.Humanize()
+                            </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            @if (item.LastUpdatedTime != default(DateTimeOffset))
+                            {
+                                <span title="更新时间">
+                                    <Icon IconName="ReminderTime" />@item.LastUpdatedTime.Humanize()
+                                </span>
+                            }
+                        </span>
+                    </span>
+                    @foreach (var i in item.Authors)
+                    {
+                        <a href="@(i.Uri ?? "javascript:void;")" class="text-secondary">@($"{i.Name}<{i.Email}>")</a>
+                    }
+                    @((MarkupString)item.Summary)
+                </div>
+            </li>
+        }
+    </ul>
+    <div class="pagination-bar">
+        <CommandButton Text="前一页" Disabled="@(!items.HasPrevious)" OnClick="async ()=> await JumpPage(items.CurrentPage-1)" />
+        @foreach (var i in PrevNums)
+        {
+            <CommandButton OnClick="async ()=> await ChangePage(i)" Text="@i.ToString()"></CommandButton>
+        }
+        @if (PrevNums.Count() != 0 && NextNums.Count() != 0)
+        {
+            <span>... ...</span>
+        }
+        <CommandButton Style="color:var(--palette-ThemePrimary);font-weight:bold;" Text="@items.CurrentPage.ToString()" />
+        @foreach (var i in NextNums)
+        {
+            <CommandButton OnClick="async ()=> await ChangePage(i)" Text="@i.ToString()"></CommandButton>
+        }
+        <CommandButton Text="后一页" Disabled="@(!items.HasNext)" OnClick="async ()=> await ChangePage(items.CurrentPage+1)" />
+    </div>
 </div>
-
 @code {
-        [Parameter]
-        public FeedItemDto Item { get; set; }
-    private const string notReadClass = "not-read";
+    private PagedList<FeedItemDto> items;
+    [Parameter]
+    public Func<int, Task<PagedList<FeedItemDto>>> JumpPage { get; set; }
+    [Inject]
+    private IFeedService FeedService { get; set; }
+    private const string NotReadClass = "not-read";
 
-    protected override void OnInitialized()
+    private IEnumerable<int> PrevNums => Enumerable.Range(1, items.CurrentPage - 1 > 5 ? 5 : items.CurrentPage - 1);
+    private IEnumerable<int> NextNums
     {
-
+        get
+        {
+            bool isLastFewPages = items.TotalCount - items.CurrentPage < 3;
+            var range = isLastFewPages ? (items.CurrentPage, items.TotalCount) : (items.CurrentPage + 1, items.CurrentPage + 3);
+            return Enumerable.Range(range.Item1, range.Item2);
+        }
+    }
+    private async Task ChangePage(int page)
+    {
+        this.items = await JumpPage(page);
+    }
+    private async Task SetItemsReadAsync(IEnumerable<int> pks)
+    {
+        await FeedService.SetItemsReadAsync(pks);
+        foreach (var i in items)
+        {
+            i.IsRead = true;
+        }
+        StateHasChanged();
+    }
+    private async Task SetItemsNotReadAsync(IEnumerable<int> pks)
+    {
+        await FeedService.SetItemsNotReadAsync(pks);
+        foreach (var i in items)
+        {
+            i.IsRead = false;
+        }
+        StateHasChanged();
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        await ChangePage(1);
+        await base.OnInitializedAsync();
     }
 }

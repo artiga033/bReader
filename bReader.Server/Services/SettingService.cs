@@ -17,7 +17,7 @@ namespace bReader.Server.Services
         /// was called, which means the db data has got updated, the cache would be updated too.
         /// </summary>
         private Dictionary<string, string> cached;
-        public async Task<Dictionary<string, string>> GetSettingsAsync()
+        public async Task<Dictionary<string, string>> GetAllSettingsAsync()
         {
             if (cached != null)
                 return cached;
@@ -26,6 +26,8 @@ namespace bReader.Server.Services
             this.cached = sets;
             return sets;
         }
+        public async Task<string> GetSettingAsync(string key) => (await this.GetAllSettingsAsync())[key];
+
         public async Task<bool> SaveSettingsAsync(Dictionary<string, string> settings)
         {
             using var context = _factory.CreateDbContext();

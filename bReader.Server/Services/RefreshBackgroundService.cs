@@ -19,7 +19,7 @@ namespace bReader.Server.Services
             bool parseSuccess;
             do
             {
-                parseSuccess = int.TryParse((await _settingService.GetSettingsAsync())["SourceUpdatePeriod"], out period);
+                parseSuccess = int.TryParse((await _settingService.GetAllSettingsAsync())["SourceUpdatePeriod"], out period);
                 await _feedService.RefreshAllFeedsAsync(stoppingToken);
                 await Task.Delay(TimeSpan.FromMinutes(period), stoppingToken);
             } while (parseSuccess && !stoppingToken.IsCancellationRequested);
@@ -27,7 +27,7 @@ namespace bReader.Server.Services
         public RefreshBackgroundService(ISettingService settingService, AutoMapper.IMapper mapper, Microsoft.EntityFrameworkCore.IDbContextFactory<Data.FeedDbContext> factory)
         {
             this._settingService = settingService;
-            this._feedService = new FeedDataService(mapper, factory);
+            this._feedService = new FeedDataService(mapper, factory,_settingService);
         }
     }
 }

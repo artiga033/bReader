@@ -1,8 +1,8 @@
 ﻿@page "/feed/{FeedPk:int}"
+@using bReader.Shared.Utils
 @inject IFeedService FeedService
 @inject CommonJsInterop CommonJs
 
-<PrimaryButton @onclick="async()=> await FeedService.SetItemsReadAsync(items.Select(x=>x.Pk))">全部设为已读</PrimaryButton>
     @if (currentFeed.IsFavorite)
 {
     <IconButton IconName="FavoriteStarFill" Style="color:gold" OnClick="async () => await SetCurrentFeedNotFavoriteAsync()"></IconButton>
@@ -15,14 +15,7 @@ else
 
 <summary class="text-secondary text-light">@currentFeed.Description</summary>
 <CascadingValue Value="FeedPk">
-    <ul class="items-container">
-        @foreach (var item in items)
-        {
-            <li>
-                <FeedItemPreviewer Item="item"></FeedItemPreviewer>
-            </li>
-        }
-    </ul>
+<FeedItemPreviewer JumpPage="i=>FeedService.GetFeedItemsPreviewAsync(FeedPk,i)"></FeedItemPreviewer>
 </CascadingValue>
 
 @code {
@@ -33,28 +26,9 @@ else
     [Parameter]
     public int FeedPk { get; set; }
 
-    private ICollection<FeedItemDto> items;
     private FeedDto currentFeed;
     private int _lastFeedId;
 
-    private async Task SetItemsReadAsync(IEnumerable<int> pks)
-    {
-        await FeedService.SetItemsReadAsync(pks);
-        foreach (var i in items)
-        {
-            i.IsRead = true;
-        }
-        StateHasChanged();
-    }
-    private async Task SetItemsNotReadAsync(IEnumerable<int> pks)
-    {
-        await FeedService.SetItemsNotReadAsync(pks);
-        foreach (var i in items)
-        {
-            i.IsRead = false;
-        }
-        StateHasChanged();
-    }
     private async Task SetCurrentFeedFavoriteAsync()
     {
         await FeedService.SetFeedsFavoriteAsync(new[] { currentFeed.Pk });
@@ -78,7 +52,7 @@ else
         }
         if (this._lastFeedId != FeedPk)
         {
-            this.items = await FeedService.GetFeedItemsPreviewAsync(FeedPk);
+            //this.items = await FeedService.GetFeedItemsPreviewAsync(FeedPk);
             this._lastFeedId = FeedPk;
         }
     }

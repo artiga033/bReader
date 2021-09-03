@@ -1,7 +1,9 @@
 ﻿using bReader.Shared.Models;
+using bReader.Shared.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,7 +20,18 @@ namespace bReader.Shared.Services
         [Obsolete("You may use GetFeedAsync() and query the favorite ones yourself")]
         public Task<ICollection<FeedDto>> GetFavoriteFeedsAsync();
         public Task<ICollection<FeedItemDto>> GetFavoriteFeedItemsAsync();
-        public Task<ICollection<FeedItemDto>> GetFeedItemsPreviewAsync(int pk);
+        public Task<PagedList<FeedItemDto>> GetFeedItemsPreviewAsync(int feedPk,int page);
+        /// <summary>
+        /// use an queryExpression to query data.
+        /// Add specific method to the service class instead of directly using this method.
+        /// Will be private in the future
+        /// </summary>
+        /// <param name="query">the query expression, which will be used in Where clause</param>
+        /// <param name="page"></param>
+        /// <param name="size"></param>
+        /// <returns></returns>
+        [Obsolete("Avoid using this method")]
+        public Task<PagedList<FeedItemDto>> GetFeedItemsPreviewAsync(Expression<Func<FeedItem,bool>> query,int page);
         public Task<FeedItemDto> GetFeedItemAsync(int pk);
 
         /// <summary>

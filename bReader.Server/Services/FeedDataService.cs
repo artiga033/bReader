@@ -2,10 +2,12 @@
 using bReader.Server.Data;
 using bReader.Shared.Models;
 using bReader.Shared.Services;
+using bReader.Shared.Utils;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net.Http;
 using System.ServiceModel.Syndication;
 using System.Threading;
@@ -17,6 +19,8 @@ namespace bReader.Server.Services
     {
         private readonly IMapper _mapper;
         private readonly IDbContextFactory<FeedDbContext> _factory;
+        private readonly ISettingService _setting;
+
         public async Task<ICollection<FeedGroupDto>> GetFeedGroupsAsync()
         {
             using var context = _factory.CreateDbContext();
@@ -41,10 +45,13 @@ namespace bReader.Server.Services
             return dtos;
         }
 
-        public async Task<ICollection<FeedItemDto>> GetFeedItemsPreviewAsync(int pk)
+        public Task<PagedList<FeedItemDto>> GetFeedItemsPreviewAsync(int feedPk, int page)
+            => GetFeedItemsPreviewAsync(x => x.SourceFeed.Pk == feedPk,page);
+
+        public async Task<PagedList<FeedItemDto>> GetFeedItemsPreviewAsync(Expression<Func<FeedItem, bool>> query, int page)
         {
             using var context = _factory.CreateDbContext();
-            var itemPrev = await context.FeedItems.Where(x => x.SourceFeed.Pk == pk)
+            var itemPrevQuery = context.FeedItems.Where(query)
                .OrderByDescending(x => DateTimeOffset.Compare(x.LastUpdatedTime, x.PublishDate) < 0 ? x.PublishDate : x.LastUpdatedTime)//because some source dont fill LastUopdateTime field,then we use PublishDate
                 .Select(i => new FeedItem
                 {
@@ -59,9 +66,10 @@ namespace bReader.Server.Services
                     SourceFeed = i.SourceFeed,
                     Summary = i.Summary.Substring(0, i.Summary.Length < 200 ? i.Summary.Length : 200),
                     Title = i.Title
-                }).AsNoTracking().ToListAsync();
-            var dto = _mapper.Map<ICollection<FeedItemDto>>(itemPrev);
-            return dto;
+                }).AsNoTracking();
+            var dto = itemPrevQuery.Select(x=>_mapper.Map<FeedItemDto>(x));
+            var result = await CreatePagedListAsync(dto, page, int.Parse(await _setting.GetSettingAsync(SettingKeyMap.PageSize)));
+            return result;
         }
         public async Task<FeedItemDto> GetFeedItemAsync(int itemPk)
         {
@@ -155,13 +163,14 @@ namespace bReader.Server.Services
             using var context = _factory.CreateDbContext();
             await context.Database.ExecuteSqlRawAsync($"UPDATE Feeds SET IsFavorite = '0' WHERE Pk IN ({string.Join(',', pks)})");
         }
-        public FeedDataService(AutoMapper.IMapper mapper, IDbContextFactory<FeedDbContext> factory)
+        public FeedDataService(AutoMapper.IMapper mapper, IDbContextFactory<FeedDbContext> factory, ISettingService setting)
         {
             this._mapper = mapper;
             this._factory = factory;
+            this._setting = setting;
         }
 
-        private async Task FetchAndUpdateFeedItems(Feed entity,FeedDbContext context)
+        private async Task FetchAndUpdateFeedItems(Feed entity, FeedDbContext context)
         {
             using HttpClient client = new HttpClient();
             var resp = await client.GetAsync(entity.SubscribeLink);
@@ -188,6 +197,14 @@ namespace bReader.Server.Services
                 else
                     context.FeedItems.Add(item);
             }
+
+        }
+        private static async Task<PagedList<T>> CreatePagedListAsync<T>(IQueryable<T> source, int pageNumber, int pageSize)
+        {
+            var count = await source.CountAsync();
+            var items = await source.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+            return new PagedList<T>(items, count, pageNumber, pageSize);
+
         }
     }
 }
