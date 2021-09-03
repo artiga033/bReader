@@ -1,9 +1,9 @@
 ﻿@page "/feed/{FeedPk:int}"
+@using bReader.Shared.Utils
 @inject IFeedService FeedService
 @inject CommonJsInterop CommonJs
 
-<PrimaryButton @onclick="async()=> await FeedService.SetItemsReadAsync(items.Select(x=>x.Pk))">全部设为已读</PrimaryButton>
-    @if (currentFeed.IsFavorite)
+@if (currentFeed.IsFavorite)
 {
     <IconButton IconName="FavoriteStarFill" Style="color:gold" OnClick="async () => await SetCurrentFeedNotFavoriteAsync()"></IconButton>
 }
@@ -15,14 +15,7 @@ else
 
 <summary class="text-secondary text-light">@currentFeed.Description</summary>
 <CascadingValue Value="FeedPk">
-    <ul class="items-container">
-        @foreach (var item in items)
-        {
-            <li>
-                <FeedItemPreviewer Item="item"></FeedItemPreviewer>
-            </li>
-        }
-    </ul>
+    <FeedItemPreviewer @ref="this.Previewer" JumpPage="JumpPage"></FeedItemPreviewer>
 </CascadingValue>
 
 @code {
@@ -32,29 +25,11 @@ else
     public ICollection<FeedGroupDto> FeedGroups { get; set; }
     [Parameter]
     public int FeedPk { get; set; }
-
-    private ICollection<FeedItemDto> items;
+    public FeedItemPreviewer Previewer { get; set; }
     private FeedDto currentFeed;
     private int _lastFeedId;
+    public Func<int, Task<PagedList<FeedItemDto>>> JumpPage => i => FeedService.GetFeedItemsPreviewAsync(FeedPk, i);
 
-    private async Task SetItemsReadAsync(IEnumerable<int> pks)
-    {
-        await FeedService.SetItemsReadAsync(pks);
-        foreach (var i in items)
-        {
-            i.IsRead = true;
-        }
-        StateHasChanged();
-    }
-    private async Task SetItemsNotReadAsync(IEnumerable<int> pks)
-    {
-        await FeedService.SetItemsNotReadAsync(pks);
-        foreach (var i in items)
-        {
-            i.IsRead = false;
-        }
-        StateHasChanged();
-    }
     private async Task SetCurrentFeedFavoriteAsync()
     {
         await FeedService.SetFeedsFavoriteAsync(new[] { currentFeed.Pk });
@@ -78,13 +53,15 @@ else
         }
         if (this._lastFeedId != FeedPk)
         {
-            this.items = await FeedService.GetFeedItemsPreviewAsync(FeedPk);
             this._lastFeedId = FeedPk;
         }
+        if (Previewer != null)//first render it would be null.
+            await Previewer.ChangePage(1);
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (currentFeed != null)
             await CommonJs.SetTitle(currentFeed.Title ?? currentFeed.SubscribeLink);
+
     }
 }
