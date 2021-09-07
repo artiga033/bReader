@@ -40,7 +40,7 @@ namespace bReader.Shared
                 .ForMember(dest => dest.Pk, opt => opt.Ignore())
                 .ForMember(dest => dest.SubscribeLink, opt => opt.Ignore())
                 .ForMember(dest => dest.IsFavorite, opt => opt.Ignore())
-                .ForMember(dest => dest.IsRead, opt => opt.Ignore())
+                .ForMember(dest => dest.UnreadCount, opt => opt.Ignore())
                 .ForMember(dest => dest.Items, opt => opt.Ignore());//dont map, we'll seperately handle it.
 
             CreateMap<FeedItem, FeedItemDto>();

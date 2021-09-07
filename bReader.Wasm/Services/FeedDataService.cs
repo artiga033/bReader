@@ -11,6 +11,8 @@ using System.ServiceModel.Syndication;
 using System.Linq;
 using bReader.Shared;
 using Microsoft.AspNetCore.Components.WebAssembly.Http;
+using bReader.Shared.Utils;
+using System.Linq.Expressions;
 
 namespace bReader.Wasm.Services
 {
@@ -204,6 +206,17 @@ namespace bReader.Wasm.Services
                 }
             }
         }
+
+        public Task<PagedList<FeedItemDto>> GetFeedItemsPreviewAsync(int feedPk, int page)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PagedList<FeedItemDto>> GetFeedItemsPreviewAsync(Expression<Func<FeedItem, bool>> query, int page)
+        {
+            throw new NotImplementedException();
+        }
+
         public FeedDataService(ILocalStorageService localStorage, AutoMapper.IMapper mapper, HttpClient httpClient)
         {
             this._localStorage = localStorage;

@@ -14,10 +14,7 @@ namespace bReader.Shared.Models
         public int Pk { get; set; }//The rss doc itself has an "Id" property, in case of confusion
         [Url]
         public string SubscribeLink { get; set; }
-        /// <summary>
-        /// Get or set the value of whether the feed has been read.
-        /// </summary>
-        public bool IsRead { get; set; }
+        public int UnreadCount { get; set; }
         /// <summary>
         /// Get or set the value of whether the feed has been marked as "Favorite".
         /// </summary>

@@ -135,11 +135,23 @@ namespace bReader.Server.Services
         {
             using var context = _factory.CreateDbContext();
             await context.Database.ExecuteSqlRawAsync($"UPDATE FeedItems SET IsRead = '1' WHERE Pk IN ({string.Join(',', pks)})");
+            var relatedFeeds = context.Feeds.Where(x => x.Items.Any(x => pks.Contains(x.Pk)));
+            foreach (var feed in relatedFeeds)
+            {
+                feed.UnreadCount = await context.FeedItems.CountAsync(x => x.SourceFeed == feed && x.IsRead == false);
+            }
+            await context.SaveChangesAsync();
         }
         public async Task SetItemsNotReadAsync(IEnumerable<int> pks)
         {
             using var context = _factory.CreateDbContext();
             await context.Database.ExecuteSqlRawAsync($"UPDATE FeedItems SET IsRead = '0' WHERE Pk IN ({string.Join(',', pks)})");
+            var relatedFeeds = context.Feeds.Where(x => x.Items.Any(x => pks.Contains(x.Pk)));
+            foreach (var feed in relatedFeeds)
+            {
+                feed.UnreadCount = await context.FeedItems.CountAsync(x => x.SourceFeed == feed && x.IsRead == false);
+            }
+            await context.SaveChangesAsync();
         }
 
         public async Task SetItemsFavoriteAsync(IEnumerable<int> pks)
@@ -181,6 +193,7 @@ namespace bReader.Server.Services
 
             //the substraction of the new feed and existing, then get new items, comparing rules seperately defined in the EqualityComparer
             var diff = newFeed.Items.Except(entity.Items, new FeedItemSameOldEqualityComparer());
+            int deltaUnread = 0;
             foreach (var item in diff)
             {
                 //set relationship
@@ -195,9 +208,12 @@ namespace bReader.Server.Services
                     existing = item;
                 }
                 else
+                {
                     context.FeedItems.Add(item);
+                    deltaUnread++;
+                }
             }
-
+            entity.UnreadCount += deltaUnread;
         }
         private static async Task<PagedList<T>> CreatePagedListAsync<T>(IQueryable<T> source, int pageNumber, int pageSize)
         {

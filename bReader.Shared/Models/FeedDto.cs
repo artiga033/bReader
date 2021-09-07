@@ -11,6 +11,7 @@ namespace bReader.Shared.Models
         public int Pk { get; set; }
         public string SubscribeLink { get; set; }
         public bool IsRead { get; set; }
+        public int UnreadCount { get; set; }
         public bool IsFavorite { get; set; }
         public FeedGroup Group { get; set; }
         public string Title { get; set; }

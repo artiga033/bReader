@@ -14,11 +14,23 @@
                 <BlazorFluentUI.Routing.NavLink Name="选项" IconName="Settings" Url="settings"></BlazorFluentUI.Routing.NavLink>
             </div>
             <hr />
+            <style>
+                span.nav-content::after {
+                    content: attr(data-unread);
+                    background-color: var(--semanticColors-WarningBackground);
+                    border-radius: 50% 50%;
+                    padding: .2em .4em;
+                    margin-left:1px;
+                }
+            </style>
             <NavLinkGroup Name="收藏" CollapseByDefault="false">
                 <div @onclick="ToggleNavMenu">
                     @foreach (var fav in FavoriteFeeds)
                     {
-                        <BlazorFluentUI.Routing.NavLink Name="@fav.Title" Url=@($"feed/{fav.Pk}")></BlazorFluentUI.Routing.NavLink>
+                        //The CSS isolation won't apply on this string we define, that's, this span's class would be purely "nav-content",
+                        //but the css,if written in "NavMenu.razor.css", would be conpiled to ".nav-content [randstr]",
+                        //making us have no choice but write the style inline.
+                        <BlazorFluentUI.Routing.NavLink Name="@($"<span class=\"nav-content\" data-unread={fav.UnreadCount}> {fav.Title} </span>")" Url=@($"feed/{fav.Pk}")></BlazorFluentUI.Routing.NavLink>
                     }
                 </div>
             </NavLinkGroup>
@@ -28,7 +40,7 @@
                     <div @onclick="ToggleNavMenu">
                         @foreach (var feed in group.Feeds)
                         {
-                            <BlazorFluentUI.Routing.NavLink Name="@feed.Title" Url=@($"feed/{feed.Pk}")></BlazorFluentUI.Routing.NavLink>
+                            <BlazorFluentUI.Routing.NavLink Name="@($"<span class=\"nav-content\" data-unread={feed.UnreadCount}> {feed.Title} </span>")" Url=@($"feed/{feed.Pk}")></BlazorFluentUI.Routing.NavLink>
                         }
                     </div>
                 </NavLinkGroup>
