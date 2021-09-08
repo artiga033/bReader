@@ -46,7 +46,7 @@
     }
     private async Task SetCurrentItemNotFavoriteAsync()
     {
-        await FeedService.SetItemsNotFavoriteAsync(new[] { feedItemDto.Pk });
+        await FeedService.SetFeedsNotFavoriteAsync(new[] { feedItemDto.Pk });
         await RefreshLayout();
     }
     private async Task SetCurrentItemReadAsync()
