@@ -5,7 +5,14 @@
 
 <div class="item-info card">
     <a href="@(feedItemDto.Links.FirstOrDefault())"><h3>@feedItemDto.Title</h3></a>
-    @feedItemDto.IsFavorite
+    @if (feedItemDto.IsFavorite)
+    {
+        <IconButton IconName="FavoriteStarFill" Style="color:gold" OnClick="async () => await SetCurrentItemNotFavoriteAsync()"></IconButton>
+    }
+    else
+    {
+        <IconButton IconName="FavoriteStar" OnClick="async ()=> await SetCurrentItemFavoriteAsync()"></IconButton>
+    }
     @foreach (var author in feedItemDto.Authors)
     {
         <a href="@author.Uri"><span class="text-secondary text-link">@($"{author.Name} <{author.Name}>")</span></a>
@@ -27,9 +34,31 @@
     @((MarkupString)feedItemDto.Content)
 </div>
 @code {
+    [CascadingParameter]
+    public Func<Task> RefreshLayout { get; set; }
     [Parameter]
     public int ItemPk { get; set; }
     private FeedItemDto feedItemDto;
+    private async Task SetCurrentItemFavoriteAsync()
+    {
+        await FeedService.SetItemsFavoriteAsync(new[] { feedItemDto.Pk });
+        await RefreshLayout();
+    }
+    private async Task SetCurrentItemNotFavoriteAsync()
+    {
+        await FeedService.SetItemsNotFavoriteAsync(new[] { feedItemDto.Pk });
+        await RefreshLayout();
+    }
+    private async Task SetCurrentItemReadAsync()
+    {
+        await FeedService.SetItemsReadAsync(new[] { feedItemDto.Pk });
+        await RefreshLayout();
+    }
+    private async Task SetCurrentItemNotReadAsync()
+    {
+        await FeedService.SetItemsNotReadAsync(new[] { feedItemDto.Pk });
+        await RefreshLayout();
+    }
     protected override async Task OnParametersSetAsync()
     {
         this.feedItemDto = await FeedService.GetFeedItemAsync(ItemPk);
@@ -37,7 +66,7 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
-            await FeedService.SetItemsReadAsync(new[] { this.ItemPk });
+            await SetCurrentItemReadAsync();
         if (feedItemDto != null && feedItemDto.Title != null)
             await CommonJs.SetTitle(feedItemDto.Title);
     }

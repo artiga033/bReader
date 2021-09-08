@@ -2,7 +2,7 @@
 @using Humanizer
 
 <div>
-    <PrimaryButton @onclick="async()=> await FeedService.SetItemsReadAsync(items.Select(x=>x.Pk))">全部设为已读</PrimaryButton>
+    <PrimaryButton @onclick="async()=> await SetItemsReadAsync(items.Select(x=>x.Pk))">全部设为已读</PrimaryButton>
     <ul class="items-container">
         @foreach (var item in items)
         {
@@ -38,19 +38,21 @@
     <div class="pagination-bar">
         <CommandButton Text="前一页" Disabled="@(!items.HasPrevious)" OnClick="async ()=> await ChangePage(items.CurrentPage-1)" />
         @* Something's wrong with the BFU's component, so we'll just use pure html element*@
-        <input class=".ms-TextField-field" @onchange="async (ChangeEventArgs __e)=>await ChangePage(int.Parse(__e.Value.ToString()))" type="number"/>
+        <input class=".ms-TextField-field" @onchange="async (ChangeEventArgs __e)=>await ChangePage(int.Parse(__e.Value.ToString()))" type="number" />
 
         <CommandButton Text="后一页" Disabled="@(!items.HasNext)" OnClick="async ()=> await ChangePage(items.CurrentPage+1)" />
     </div>
 </div>
 @code {
+    [CascadingParameter]
+    public Func<Task> RefreshLayout { get; set; }
     private PagedList<FeedItemDto> items;
     [Parameter]
     public Func<int, Task<PagedList<FeedItemDto>>> JumpPage { get; set; }
     [Inject]
     private IFeedService FeedService { get; set; }
     private const string NotReadClass = "not-read";
-    
+
     public async Task ChangePage(int page)
     {
         this.items = await JumpPage(page);
@@ -58,20 +60,12 @@
     private async Task SetItemsReadAsync(IEnumerable<int> pks)
     {
         await FeedService.SetItemsReadAsync(pks);
-        foreach (var i in items)
-        {
-            i.IsRead = true;
-        }
-        StateHasChanged();
+        await RefreshLayout();
     }
     private async Task SetItemsNotReadAsync(IEnumerable<int> pks)
     {
         await FeedService.SetItemsNotReadAsync(pks);
-        foreach (var i in items)
-        {
-            i.IsRead = false;
-        }
-        StateHasChanged();
+        await RefreshLayout();
     }
     protected override async Task OnInitializedAsync()
     {
