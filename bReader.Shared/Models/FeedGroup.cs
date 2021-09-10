@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,17 +10,19 @@ namespace bReader.Shared.Models
     public class FeedGroup
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        [Required]
+        public string? Name { get; set; }
         public ICollection<Feed> Feeds { get; set; } = new List<Feed>();
     }
     public class FeedGroupDto
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public ICollection<FeedDto> Feeds { get; set; }
+        public string Name { get; set; } = "";
+        public ICollection<FeedDto> Feeds { get; set; }=new List<FeedDto>();
     }
     public class FeedGroupCreateDto
     {
-        public string Name { get; set; }
+        [Required]
+        public string? Name { get; set; }
     }
 }

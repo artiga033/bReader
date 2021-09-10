@@ -10,17 +10,17 @@ namespace bReader.Shared.Models
     [Serializable]
     public class PersonDto
     {
-        public string Email { get; set; }
-        public string Name { get; set; }
-        public string Uri { get; set; }
+        public string? Email { get; set; }
+        public string? Name { get; set; }
+        public string? Uri { get; set; }
     }
 
     [Serializable]
     public class CategoryDto
     {
-        public string Label { get; set; }
-        public string Name { get; set; }
-        public string Scheme { get; set; }
+        public string? Label { get; set; }
+        public string? Name { get; set; }
+        public string? Scheme { get; set; }
     }
 
     //Why not directly use String

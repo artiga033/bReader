@@ -8,7 +8,7 @@ namespace bReader.Shared.Models
 {
     class FeedItemUpdateDto
     {
-        public string Id { get; set; }
+        public string? Id { get; set; }
         /// <summary>
         /// Get or set the value of whether the feed item has been read.
         /// </summary>
