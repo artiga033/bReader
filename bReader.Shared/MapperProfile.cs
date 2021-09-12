@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.ServiceModel.Syndication;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -14,7 +13,8 @@ namespace bReader.Shared
     {
         public MapperProfile()
         {
-
+            ForAllPropertyMaps(p => p.DestinationMember == null, (p, cfg) => cfg.UseDestinationValue());
+            CreateMap<string, Uri>().ConstructUsing(x => new Uri(x)).ReverseMap().ConvertUsing(x => x.ToString());
             CreateMap<string, ICollection<PersonDto>>().ConvertUsing(typeof(JsonDeserializeConverter<ICollection<PersonDto>>));
             CreateMap<string, ICollection<CategoryDto>>().ConvertUsing(typeof(JsonDeserializeConverter<ICollection<CategoryDto>>));
             CreateMap<string, ICollection<Uri>>().ConvertUsing(typeof(JsonDeserializeConverter<ICollection<Uri>>));
@@ -22,16 +22,6 @@ namespace bReader.Shared
             CreateMap<ICollection<CategoryDto>, string>().ConvertUsing(typeof(JsonSerializeConverter<ICollection<CategoryDto>>));
             CreateMap<ICollection<Uri>, string>().ConvertUsing(typeof(JsonSerializeConverter<ICollection<Uri>>));
 
-            //All for mapping from SyndicationFeed to to FeedDto to Feed entity.
-            CreateMap<SyndicationPerson, PersonDto>();
-            CreateMap<SyndicationCategory, CategoryDto>();
-            CreateMap<SyndicationContent, string>().ConvertUsing(x => (x as TextSyndicationContent) != null ? ((TextSyndicationContent)x).Text : string.Empty);
-            CreateMap<SyndicationLink, Uri>().ConvertUsing(x => x.Uri);
-            CreateMap<SyndicationItem, FeedItemDto>()
-                .ForMember(dest => dest.Links, opt => opt.MapFrom(x => x.Links.Select(y => y.Uri)))
-                .ForMember(dest => dest.SourceFeed, opt => opt.Ignore());
-            CreateMap<SyndicationFeed, FeedDto>()
-                .ForMember(dest => dest.Documentation, opt => opt.MapFrom(x => x.Documentation.Uri));
             CreateMap<FeedItemDto, FeedItem>()//DTO will never overwrite these properties, only CreateDto can.
                 .ForMember(dest => dest.IsFavorite, opt => opt.Ignore())
                 .ForMember(dest => dest.IsRead, opt => opt.Ignore());
@@ -41,6 +31,7 @@ namespace bReader.Shared
                 .ForMember(dest => dest.SubscribeLink, opt => opt.Ignore())
                 .ForMember(dest => dest.IsFavorite, opt => opt.Ignore())
                 .ForMember(dest => dest.UnreadCount, opt => opt.Ignore())
+                .ForMember(dest=>dest.Group,opt=> opt.Ignore())
                 .ForMember(dest => dest.Items, opt => opt.Ignore());//dont map, we'll seperately handle it.
 
             CreateMap<FeedItem, FeedItemDto>();
@@ -55,9 +46,7 @@ namespace bReader.Shared
     {
         public TDestination Convert(string source, TDestination destination, ResolutionContext context)
         {
-            if (source == null || source == string.Empty)
-                return default(TDestination);
-            return JsonSerializer.Deserialize<TDestination>(source);
+            return JsonSerializer.Deserialize<TDestination>(source)??throw new ArgumentNullException(nameof(source));
         }
     }
     public class JsonSerializeConverter<TSource> : ITypeConverter<TSource, string>

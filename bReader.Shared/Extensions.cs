@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.ServiceModel.Syndication;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -34,19 +33,15 @@ namespace bReader.Shared
             }
             return r;
         }
-        public static FeedItemDto ToFeedItemDto(this SyndicationItem synFeedItem)
-        {
-            FeedItemDto result = new FeedItemDto();
-            throw new NotImplementedException();
-        }
-        public static FeedDto ToFeedDto(this SyndicationFeed synFeed)
-        {
-            throw new NotImplementedException();
-        }
         public static void AddIfNone<Tkey,TValue> (this IDictionary<Tkey,TValue> dictionary,Tkey key,TValue value)
         {
             if (!dictionary.ContainsKey(key))
                 dictionary.Add(key,value);
+        }
+        public static void AddIfNotNull<T>(this ICollection<T> collection,T? item)
+        {
+            if(item!=null)
+                collection.Add(item);
         }
     }
 }

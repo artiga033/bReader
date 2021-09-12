@@ -10,7 +10,6 @@
     <PackageReference Include="BlazorFluentUI.CoreComponents" Version="5.6.1" />
     <PackageReference Include="BlazorFluentUI.ListComponents" Version="5.6.1" />
     <PackageReference Include="Humanizer.Core.zh-Hans" Version="2.11.10" />
-    <PackageReference Include="System.ServiceModel.Syndication" Version="5.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="5.0.9" />
   </ItemGroup>
 

@@ -13,6 +13,7 @@ using bReader.Shared;
 using Microsoft.AspNetCore.Components.WebAssembly.Http;
 using bReader.Shared.Utils;
 using System.Linq.Expressions;
+using bReader.Shared.Models.Parser;
 
 namespace bReader.Wasm.Services
 {
@@ -34,7 +35,7 @@ namespace bReader.Wasm.Services
             if (entities == null)
             {
                 //first run, initialize a default group
-                var defaultGroup = new List<FeedGroup>() { new FeedGroup { Id = 0, Name = "默认", Feeds = new List<Feed>() } };
+                var defaultGroup = new List<FeedGroup>() { new FeedGroup { Id = -1, Name = "默认", Feeds = new List<Feed>() } };
                 await _localStorage.SetItemAsync(KEY_GROUPS, defaultGroup);
                 return _mapper.Map<ICollection<FeedGroupDto>>(defaultGroup);
             }
@@ -104,8 +105,7 @@ namespace bReader.Wasm.Services
                 //in this case, it would cause many trouble
                 reqMsg.SetBrowserRequestMode(BrowserRequestMode.NoCors);
                 var resp = await _httpClient.SendAsync(reqMsg);
-                var synfeed = SyndicationFeed.Load(System.Xml.XmlReader.Create(await resp.Content.ReadAsStreamAsync()));
-                var dto = _mapper.Map<FeedDto>(synfeed);
+                var dto = FeedParser.ParseToFeedDto(await resp.Content.ReadAsStringAsync());
                 _mapper.Map(dto, feedToAdd);
 
                 targetGroup.Feeds.Add(feedToAdd);
@@ -179,9 +179,8 @@ namespace bReader.Wasm.Services
         /// <returns></returns>
         private async Task FetchAndUpdateFeedItems(FeedDto feed)
         {
-            var resp = await _httpClient.GetAsync(feed.SubscribeLink);
-            var synfeed = SyndicationFeed.Load(System.Xml.XmlReader.Create(await resp.Content.ReadAsStreamAsync()));
-            var dto = _mapper.Map<FeedDto>(synfeed);
+            var resp = await _httpClient.GetStringAsync(feed.SubscribeLink);
+            var dto = FeedParser.ParseToFeedDto(resp);
             _mapper.Map(dto, feed);
 
             foreach (var item in dto.Items)
@@ -213,6 +212,11 @@ namespace bReader.Wasm.Services
         }
 
         public Task<PagedList<FeedItemDto>> GetFeedItemsPreviewAsync(Expression<Func<FeedItem, bool>> query, int page)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<PagedList<FeedItemDto>> IFeedService.GetFeedItemsPreviewAsync(int page)
         {
             throw new NotImplementedException();
         }

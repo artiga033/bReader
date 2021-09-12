@@ -1,0 +1,426 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.Linq;
+using System.Text.Json;
+using System.Xml.Linq;
+
+
+namespace bReader.Shared.Models.Parser
+{
+    public static class Rss20FeedParser
+    {
+        public static readonly ISet<string> RecognizedVersions = new HashSet<string>
+        {
+            "2.0",
+
+            // support previous RSS 2.* branch versions
+            "0.91",
+            "0.92",
+            "0.93",
+            "0.94",
+        };
+        public static bool TryParseRss20Feed(XDocument document, out FeedDto parsedFeed)
+        {
+            parsedFeed = new FeedDto();
+
+            var rssElement = document?.Element("rss");
+            if (rssElement == null)
+                return false;
+
+            var rssVersion = rssElement.Attribute("version")?.Value;
+
+            if (rssVersion == null || !RecognizedVersions.Contains(rssVersion))
+                return false;
+
+            //if (extensionManifestDirectory == null)
+            //{
+            //    extensionManifestDirectory = ExtensionManifestDirectory.DefaultForRss;
+            //}
+
+            return TryParseRss20Channel(rssElement.Element("channel"), ref parsedFeed);
+        }
+
+        private static bool TryParseRss20Channel(XElement? channelElement, ref FeedDto parsedFeed)
+        {
+
+            if (channelElement == null)
+                return false;
+
+            parsedFeed.Title = channelElement.Element("title")?.Value.Trim() ?? parsedFeed.Title;
+            var link = channelElement.Element("link");
+            parsedFeed.Description = channelElement.Element("description")?.Value.Trim() ?? parsedFeed.Description;
+            parsedFeed.Language = channelElement.Element("language")?.Value.Trim() ?? parsedFeed.Language;
+            parsedFeed.Copyright = channelElement.Element("copyright")?.Value.Trim() ?? parsedFeed.Copyright;
+            parsedFeed.Generator = channelElement.Element("generator")?.Value.Trim() ?? parsedFeed.Generator;
+            var e = channelElement.Element("managingEditor");
+            var m = channelElement.Element("webMaster");
+            var d = channelElement.Element("docs");
+            var i = channelElement.Element("image")?.Element("url");
+            if (link != null)
+                parsedFeed.Links.Add(new Uri(link.Value.Trim()));
+            if (e != null)
+                parsedFeed.Authors.Add(new PersonDto() { Name = e.Value.Trim() });
+            if (m != null)
+                parsedFeed.Authors.Add(new PersonDto() { Name = m.Value.Trim() });
+            if (d != null)
+                parsedFeed.Documentation=new Uri(d.Value.Trim());
+            if (i != null)
+                parsedFeed.ImageUrl = new Uri(i.Value.Trim());
+
+            //if (TryParseRss20Timestamp(channelElement.Element("pubDate"), out var parsedPubDate))
+            //{
+            //    parsedFeed.PubDate = parsedPubDate;
+            //}
+
+            if (TryParseRss20Timestamp(channelElement.Element("lastBuildDate"), out var parsedLastBuildDate))
+            {
+                parsedFeed.LastUpdatedTime = parsedLastBuildDate;
+            }
+
+            foreach (var categoryElement in channelElement.Elements("category"))
+            {
+                if (TryParseRss20Category(categoryElement, out var parsedCategory))
+                {
+                    parsedFeed.Categories.Add(parsedCategory);
+                }
+            }
+
+            //if (TryParseRss20Cloud(channelElement.Element("cloud"), out var parsedCloud))
+            //{
+            //    parsedFeed.Cloud = parsedCloud;
+            //}
+
+            //if (TryParseRss20Ttl(channelElement.Element("ttl"), out var parsedTtl))
+            //{
+            //    parsedFeed.Ttl = parsedTtl;
+            //}
+
+            //if (TryParseRss20Image(channelElement.Element("image"), extensionManifestDirectory, out var parsedImage))
+            //{
+            //    parsedFeed.Image = parsedImage;
+            //}
+
+            //if (TryParseRss20TextInput(channelElement.Element("textInput"), extensionManifestDirectory, out var parsedTextInput))
+            //{
+            //    parsedFeed.TextInput = parsedTextInput;
+            //}
+
+            //if (TryParseRss20SkipHours(channelElement.Element("skipHours"), out var parsedSkipHours))
+            //{
+            //    parsedFeed.SkipHours = parsedSkipHours;
+            //}
+
+            //if (TryParseRss20SkipDays(channelElement.Element("skipDays"), out var parsedSkipDays))
+            //{
+            //    parsedFeed.SkipDays = parsedSkipDays;
+            //}
+
+            //// extensions
+            //ExtensibleEntityParser.ParseXElementExtensions(channelElement, extensionManifestDirectory, parsedFeed);
+
+            // items
+            foreach (var itemElement in channelElement.Elements("item"))
+            {
+                if (TryParseRss20Item(itemElement, out var parsedItem))
+                {
+                    parsedFeed.Items.Add(parsedItem);
+                }
+            }
+
+            return true;
+        }
+
+        private static bool TryParseRss20Category(XElement categoryElement, out CategoryDto parsedCategory)
+        {
+            parsedCategory = new CategoryDto();
+
+            if (categoryElement == null)
+                return false;
+
+            parsedCategory.Name = categoryElement.Value.Trim();
+            parsedCategory.Scheme = categoryElement.Attribute("domain")?.Value;
+
+            return true;
+        }
+
+        private static bool TryParseRss20Timestamp(XElement? timestampElement, out DateTimeOffset parsedTimestamp)
+        {
+            parsedTimestamp = default;
+
+            if (timestampElement == null)
+                return false;
+
+            if (!RelaxedTimestampParser.TryParseTimestampFromString(timestampElement.Value, out parsedTimestamp))
+                return false;
+
+            return true;
+        }
+
+        //private static bool TryParseRss20Cloud(XElement cloudElement, out Rss20Cloud parsedCloud)
+        //{
+        //    parsedCloud = default;
+
+        //    if (cloudElement == null)
+        //        return false;
+
+        //    parsedCloud = new Rss20Cloud();
+        //    parsedCloud.Domain = cloudElement.Attribute("domain")?.Value;
+        //    parsedCloud.Port = cloudElement.Attribute("port")?.Value;
+        //    parsedCloud.Path = cloudElement.Attribute("path")?.Value;
+        //    parsedCloud.RegisterProcedure = cloudElement.Attribute("registerProcedure")?.Value;
+        //    parsedCloud.Protocol = cloudElement.Attribute("protocol")?.Value;
+
+        //    return true;
+        //}
+
+        //private static bool TryParseRss20Image(XElement imageElement, ExtensionManifestDirectory extensionManifestDirectory, out Rss20Image parsedImage)
+        //{
+        //    parsedImage = default;
+
+        //    if (imageElement == null)
+        //        return false;
+
+        //    parsedImage = new Rss20Image();
+        //    parsedImage.Url = imageElement.Element("url")?.Value.Trim();
+        //    parsedImage.Title = imageElement.Element("title")?.Value.Trim();
+        //    parsedImage.Link = imageElement.Element("link")?.Value.Trim();
+        //    parsedImage.Description = imageElement.Element("description")?.Value.Trim();
+
+        //    if (int.TryParse(imageElement.Element("width")?.Value.Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out var parsedWidth))
+        //    {
+        //        parsedImage.Width = parsedWidth;
+        //    }
+
+        //    if (int.TryParse(imageElement.Element("height")?.Value.Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out var parsedHeight))
+        //    {
+        //        parsedImage.Height = parsedHeight;
+        //    }
+
+        //    // extensions
+        //    ExtensibleEntityParser.ParseXElementExtensions(imageElement, extensionManifestDirectory, parsedImage);
+
+        //    return true;
+        //}
+
+        //private static bool TryParseRss20TextInput(XElement textInputElement, ExtensionManifestDirectory extensionManifestDirectory, out Rss20TextInput parsedTextInput)
+        //{
+        //    parsedTextInput = default;
+
+        //    if (textInputElement == null)
+        //        return false;
+
+        //    parsedTextInput = new Rss20TextInput();
+        //    parsedTextInput.Title = textInputElement.Element("title")?.Value.Trim();
+        //    parsedTextInput.Description = textInputElement.Element("description")?.Value.Trim();
+        //    parsedTextInput.Name = textInputElement.Element("name")?.Value.Trim();
+        //    parsedTextInput.Link = textInputElement.Element("link")?.Value.Trim();
+
+        //    // extensions
+        //    ExtensibleEntityParser.ParseXElementExtensions(textInputElement, extensionManifestDirectory, parsedTextInput);
+
+        //    return true;
+        //}
+
+        //private static bool TryParseRss20Ttl(XElement ttlElement, out TimeSpan parsedTtl)
+        //{
+        //    parsedTtl = default;
+
+        //    if (ttlElement == null)
+        //        return false;
+
+        //    if (!double.TryParse(ttlElement.Value.Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out var ttlMinutes))
+        //        return false;
+
+        //    parsedTtl = TimeSpan.FromMinutes(ttlMinutes);
+
+        //    return true;
+        //}
+
+        //private static bool TryParseRss20SkipHours(XElement skipHoursElement, out IList<int> parsedSkipHours)
+        //{
+        //    parsedSkipHours = new List<int>();
+
+        //    if (skipHoursElement == null)
+        //        return false;
+
+        //    var hourElements = skipHoursElement.Elements("hour");
+        //    foreach (var hourElement in hourElements)
+        //    {
+        //        if (int.TryParse(hourElement.Value.Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out var parsedHour))
+        //        {
+        //            parsedSkipHours.Add(parsedHour);
+        //        }
+        //    }
+
+        //    if (!parsedSkipHours.Any())
+        //        return false;
+
+        //    return true;
+        //}
+
+        //private static bool TryParseRss20SkipDays(XElement skipDaysElement, out IList<DayOfWeek> parsedSkipDays)
+        //{
+        //    parsedSkipDays = new List<DayOfWeek>();
+
+        //    if (skipDaysElement == null)
+        //        return false;
+
+        //    var dayElements = skipDaysElement.Elements("day");
+        //    foreach (var dayElement in dayElements)
+        //    {
+        //        var dayOfWeekString = dayElement.Value.Trim().ToLowerInvariant();
+        //        DayOfWeek parsedDayOfWeek;
+        //        switch (dayOfWeekString)
+        //        {
+        //            case "monday":
+        //                parsedDayOfWeek = DayOfWeek.Monday;
+        //                break;
+        //            case "tuesday":
+        //                parsedDayOfWeek = DayOfWeek.Tuesday;
+        //                break;
+        //            case "wednesday":
+        //                parsedDayOfWeek = DayOfWeek.Wednesday;
+        //                break;
+        //            case "thursday":
+        //                parsedDayOfWeek = DayOfWeek.Thursday;
+        //                break;
+        //            case "friday":
+        //                parsedDayOfWeek = DayOfWeek.Friday;
+        //                break;
+        //            case "saturday":
+        //                parsedDayOfWeek = DayOfWeek.Saturday;
+        //                break;
+        //            case "sunday":
+        //                parsedDayOfWeek = DayOfWeek.Sunday;
+        //                break;
+        //            default:
+        //                continue;
+        //        }
+
+        //        parsedSkipDays.Add(parsedDayOfWeek);
+        //    }
+
+        //    if (!parsedSkipDays.Any())
+        //        return false;
+
+        //    return true;
+        //}
+
+        private static bool TryParseRss20Item(XElement itemElement,  out FeedItemDto parsedItem)
+        {
+            parsedItem= new FeedItemDto();
+            if (itemElement == null)
+                return false;
+
+            parsedItem.Title = itemElement.Element("title")?.Value.Trim()??parsedItem.Title;
+            parsedItem.Summary = itemElement.Element("description")?.Value.Trim()??parsedItem.Summary;
+            var l = itemElement.Element("link");
+            var a = itemElement.Element("author");
+            var i = itemElement.Element("guid");
+            if (l != null)
+                parsedItem.Links.Add(new Uri(l.Value.Trim()));
+            if (a != null)
+                parsedItem.Authors.Add(new PersonDto() { Name=a.Value.Trim()});
+            if(i!=null)
+                parsedItem.Id= i.Value.Trim();
+            foreach (var categoryElement in itemElement.Elements("category"))
+            {
+                if (TryParseRss20Category(categoryElement, out var parsedCategory))
+                {
+                    parsedItem.Categories.Add(parsedCategory);
+                }
+            }
+
+            //foreach (var enclosureElement in itemElement.Elements("enclosure"))
+            //{
+            //    if (TryParseRss20Enclosure(enclosureElement, out var parsedEnclosure))
+            //    {
+            //        parsedItem.Enclosures.Add(parsedEnclosure);
+            //    }
+            //}
+
+            if (TryParseRss20Timestamp(itemElement.Element("pubDate"), out var parsedPubDate))
+            {
+                parsedItem.PublishDate = parsedPubDate;
+            }
+
+            //if (TryParseRss20Source(itemElement.Element("source"), out var parsedSource))
+            //{
+            //    parsedItem.Source = parsedSource;
+            //}
+
+            //// extensions
+            //ExtensibleEntityParser.ParseXElementExtensions(itemElement, extensionManifestDirectory, parsedItem);
+
+            return true;
+        }
+
+        //private static bool TryParseRss20Guid(XElement guidElement, out Rss20Guid parsedGuid)
+        //{
+        //    parsedGuid = default;
+
+        //    if (guidElement == null)
+        //        return false;
+
+        //    parsedGuid = new Rss20Guid();
+        //    parsedGuid.Value = guidElement.Value.Trim();
+
+        //    if (TryParseRss20BoolValue(guidElement.Attribute("isPermaLink")?.Value, out var parsedIsPermaLink))
+        //    {
+        //        parsedGuid.IsPermaLink = parsedIsPermaLink;
+        //    }
+
+        //    return true;
+        //}
+
+        private static bool TryParseRss20BoolValue(string boolValue, out bool parsedValue)
+        {
+            parsedValue = false;
+
+            if (string.IsNullOrWhiteSpace(boolValue))
+                return false;
+
+            switch (boolValue.Trim().ToLowerInvariant())
+            {
+                case "true":
+                    parsedValue = true;
+                    return true;
+                case "false":
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        //private static bool TryParseRss20Source(XElement sourceElement, out Rss20Source parsedSource)
+        //{
+        //    parsedSource = default;
+
+        //    if (sourceElement == null)
+        //        return false;
+
+        //    parsedSource = new Rss20Source();
+        //    parsedSource.Name = sourceElement.Value.Trim();
+        //    parsedSource.Url = sourceElement.Attribute("url")?.Value;
+
+        //    return true;
+        //}
+
+        //private static bool TryParseRss20Enclosure(XElement enclosureElement, out Rss20Enclosure parsedEnclosure)
+        //{
+        //    parsedEnclosure = default;
+
+        //    if (enclosureElement == null)
+        //        return false;
+
+        //    parsedEnclosure = new Rss20Enclosure();
+        //    parsedEnclosure.Url = enclosureElement.Attribute("url")?.Value;
+        //    parsedEnclosure.Length = enclosureElement.Attribute("length")?.Value;
+        //    parsedEnclosure.Type = enclosureElement.Attribute("type")?.Value;
+
+        //    return true;
+        //}
+    }
+}

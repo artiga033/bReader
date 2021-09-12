@@ -21,6 +21,7 @@ namespace bReader.Shared.Services
         public Task<ICollection<FeedDto>> GetFavoriteFeedsAsync();
         public Task<ICollection<FeedItemDto>> GetFavoriteFeedItemsAsync();
         public Task<PagedList<FeedItemDto>> GetFeedItemsPreviewAsync(int feedPk,int page);
+        public Task<PagedList<FeedItemDto>> GetFeedItemsPreviewAsync(int page);
         /// <summary>
         /// use an queryExpression to query data.
         /// Add specific method to the service class instead of directly using this method.

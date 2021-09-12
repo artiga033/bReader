@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using bReader.Server.Data;
 using bReader.Shared.Models;
+using bReader.Shared.Models.Parser;
 using bReader.Shared.Services;
 using bReader.Shared.Utils;
 using Microsoft.EntityFrameworkCore;
@@ -47,7 +48,8 @@ namespace bReader.Server.Services
 
         public Task<PagedList<FeedItemDto>> GetFeedItemsPreviewAsync(int feedPk, int page)
             => GetFeedItemsPreviewAsync(x => x.SourceFeed.Pk == feedPk,page);
-
+        public Task<PagedList<FeedItemDto>> GetFeedItemsPreviewAsync(int page)
+            => GetFeedItemsPreviewAsync(x=>true,page);
         public async Task<PagedList<FeedItemDto>> GetFeedItemsPreviewAsync(Expression<Func<FeedItem, bool>> query, int page)
         {
             using var context = _factory.CreateDbContext();
@@ -109,12 +111,12 @@ namespace bReader.Server.Services
         public async Task<bool> AddFeedAsync(FeedCreateUpdateDto createDto, int groupId)
         {
             using var context = _factory.CreateDbContext();
-            var group = await context.Groups.FirstOrDefaultAsync(x => x.Id == groupId);
+            var group = await context.Groups.AsTracking().FirstOrDefaultAsync(x => x.Id == groupId);
             if (group != null)
             {
                 var entity = _mapper.Map<Feed>(createDto);
-                await FetchAndUpdateFeedItems(entity, context);
                 entity.Group = group;
+                await FetchAndUpdateFeedItems(entity, context);
                 context.Feeds.Add(entity);
                 return await context.SaveChangesAsync() > 0;
             }
@@ -185,14 +187,13 @@ namespace bReader.Server.Services
         private async Task FetchAndUpdateFeedItems(Feed entity, FeedDbContext context)
         {
             using HttpClient client = new HttpClient();
-            var resp = await client.GetAsync(entity.SubscribeLink);
-            var synfeed = SyndicationFeed.Load(System.Xml.XmlReader.Create(await resp.Content.ReadAsStreamAsync()));
-            var dto = _mapper.Map<FeedDto>(synfeed);
+            var resp = await client.GetStringAsync(entity.SubscribeLink);
+            var dto = FeedParser.ParseToFeedDto(resp);
             var newFeed = _mapper.Map<Feed>(dto);
             _mapper.Map(newFeed, entity);
 
             //the substraction of the new feed and existing, then get new items, comparing rules seperately defined in the EqualityComparer
-            var diff = newFeed.Items.Except(entity.Items, new FeedItemSameOldEqualityComparer());
+            var diff = newFeed.Items.Except(entity.Items, new FeedItemEqualityComparer());
             int deltaUnread = 0;
             foreach (var item in diff)
             {
@@ -200,7 +201,7 @@ namespace bReader.Server.Services
                 item.SourceFeed = entity;
 
                 var existing = await context.FeedItems.SingleOrDefaultAsync(x => x.Id == item.Id);
-                if (existing != null)
+                if (existing != null && existing.SourceFeed==entity)
                 {
                     //keep current state
                     item.IsFavorite = existing.IsFavorite;

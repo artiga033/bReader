@@ -13,6 +13,7 @@
                             <NavLink href=@($"feeditem/{item.Pk}")>
                                 <h3>@item.Title</h3>
                             </NavLink>
+                            @item.SourceFeed.Title
                         </span>
                         <span>
                             <span title="发布时间">
