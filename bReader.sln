@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31515.178
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31612.314
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "bReader.Server", "bReader.Server\bReader.Server.csproj", "{5F32AEB7-ADF7-4CCF-9701-B03B0F64C1EF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "bReader.Shared", "bReader.Shared\bReader.Shared.csproj", "{A22E410B-17B2-4C53-9C8D-91743DCCCFBF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "bReader.Wasm", "bReader.Wasm\bReader.Wasm.csproj", "{818507DB-1D0E-476D-B746-E7032635E6F5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bReader.Tests", "bReader.Tests\bReader.Tests.csproj", "{7363D3DB-18B1-4DFB-AA88-E98332C1B46F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{818507DB-1D0E-476D-B746-E7032635E6F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{818507DB-1D0E-476D-B746-E7032635E6F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{818507DB-1D0E-476D-B746-E7032635E6F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7363D3DB-18B1-4DFB-AA88-E98332C1B46F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7363D3DB-18B1-4DFB-AA88-E98332C1B46F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7363D3DB-18B1-4DFB-AA88-E98332C1B46F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7363D3DB-18B1-4DFB-AA88-E98332C1B46F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
