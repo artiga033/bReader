@@ -39,8 +39,8 @@ namespace bReader.Server
 
             services.AddAutoMapper(typeof(bReader.Shared.MapperProfile));
             services.AddScoped<IFeedService, FeedDataService>();
-            services.AddTransient<ISettingService, SettingService>();
-            services.AddTransient<IHostedService, RefreshBackgroundService>();
+            services.AddSingleton<ISettingService, SettingService>();
+            services.AddHostedService<RefreshBackgroundService>();
             services.AddScoped<CommonJsInterop>();
         }
 
