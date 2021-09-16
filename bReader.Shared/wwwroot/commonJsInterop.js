@@ -15,3 +15,7 @@ export function setTitle(text) {
     var t_element = document.getElementById("top-title");
     t_element.innerHTML = text;
 }
+export function setElementContent(elementId, content) {
+    var ele = document.getElementById(elementId);
+    ele.innerText = content;
+}

@@ -43,6 +43,11 @@ namespace bReader.Shared.Services
             var module = await moduleTask.Value;
             await module.InvokeVoidAsync("setTitle", text);
         }
+        public async Task SetElementContent(string elementId,string text)
+		{
+            var module = await moduleTask.Value;
+            await module.InvokeVoidAsync("setElementContent", elementId,text);
+        }
 
         public async ValueTask DisposeAsync()
         {

@@ -9,10 +9,12 @@
     </div>
     <nav class="@NavMenuCssClass">
         <Nav>
+            <NavLinkGroup>
             <div @onclick="ToggleNavMenu">
                 <BlazorFluentUI.Routing.NavLink Name="首页" IconName="Home" Url=""></BlazorFluentUI.Routing.NavLink>
                 <BlazorFluentUI.Routing.NavLink Name="选项" IconName="Settings" Url="settings"></BlazorFluentUI.Routing.NavLink>
             </div>
+            </NavLinkGroup>
             <hr />
             <style>
                 span.nav-content::after {
