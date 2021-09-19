@@ -12,7 +12,6 @@ else
     <IconButton IconName="FavoriteStar" OnClick="async ()=> await SetCurrentFeedFavoriteAsync()"></IconButton>
 }
 <h3>@currentFeed.Title</h3>
-
 <summary class="text-secondary text-light">@currentFeed.Description</summary>
 <CascadingValue Value="FeedPk">
     <FeedItemPreviewer @ref="this.Previewer" JumpPage="JumpPage"></FeedItemPreviewer>

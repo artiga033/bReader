@@ -1,75 +1,32 @@
 ﻿@page "/"
-@*@page "/"
 @inject IFeedService FeedService
-@inject IJSRuntime JSRuntime
-@using System.Linq;
+@inject CommonJsInterop CommonJs
+<div class="card">
+	欢迎使用bReader
+</div>
+<div>现在有 @(unreadCount) 篇未读文章</div>
+<div class="card">
+	<FeedItemPreviewer Label="未读文章" JumpPage=UnreadJumpPage></FeedItemPreviewer>
+</div>
 
-<style>
-    table, td, th {
-        border: 1px solid green;
-    }
+<div class="card">
+	<FeedItemPreviewer Label="最新文章" JumpPage=LatestJumpPage></FeedItemPreviewer>
+</div>
+@code {
+	public Func<int, Task<PagedList<FeedItemDto>>> UnreadJumpPage => i => FeedService.GetUnreadFeedItemsAsync(i);
 
-    th {
-        background-color: green;
-        color: white;
-    }
-</style>
+	public Func<int, Task<PagedList<FeedItemDto>>> LatestJumpPage => i => FeedService.GetFeedItemsPreviewAsync(i);
+	[CascadingParameter]
+	public ICollection<FeedGroupDto> FeedGroups { get; set; }
+	private int unreadCount;
 
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
-
-<form class="display:inline" @onsubmit="async()=> await AddFeed(createDto)">
-    <input type="url" placeholder="SubscrbeLink" @bind="createDto.SubscribeLink">
-    <input type="submit" placeholder="Add" value="Add" />
-</form>
-<table>
-    <tr class="head">
-        <td>SubLink</td>
-        <td>Title</td>
-        <td>Summary</td>
-        <td>ItemCounts</td>
-        <td>Options</td>
-    </tr>
-    @foreach (var i in Feeds)
-    {
-        <tr>
-            <td>@i.SubscribeLink</td>
-            <td>@i.Title</td>
-            <td>@(i.Description??"No Content")</td>
-            <td><button @onclick="async () => await UpdateSource(i.Pk)"> Update</button></td>
-        </tr>
-    }
-</table>
-
-@code
-{
-    private FeedCreateUpdateDto createDto = new FeedCreateUpdateDto();
-    [CascadingParameter]
-    private IEnumerable<FeedDto> Feeds { get; set; } = new List<FeedDto>();
-    //protected override async Task OnInitializedAsync()
-    //{
-    //    //Feeds = await FeedService.GetFeedsAsync();
-    //}
-    private async Task AddFeed(FeedCreateUpdateDto createDto)
-    {
-        await FeedService.AddFeedAsync(createDto);
-        Feeds = await FeedService.GetFeedGroupsAsync();
-    }
-    private async Task UpdateSource(int pk)
-    {
-        try
-        {
-            await FeedService.RefreshFeedAsync(pk);
-            Feeds = await FeedService.GetFeedGroupsAsync();
-        }
-        catch (HttpRequestException hre)
-        {
-            await JSRuntime.InvokeVoidAsync("alert", $"网络错误:{hre.Message}");
-        }
-        catch (Exception)
-        {
-            await JSRuntime.InvokeVoidAsync("alert", "未知错误");
-        }
-    }
-}*@
+	protected override void OnInitialized()
+	{
+		this.unreadCount = FeedGroups.GetAllFeeds().Sum(x => x.UnreadCount);
+		base.OnInitialized();
+	}
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		await CommonJs.SetTitle("首页");
+	}
+}

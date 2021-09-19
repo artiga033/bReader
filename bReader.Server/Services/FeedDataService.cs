@@ -37,19 +37,15 @@ namespace bReader.Server.Services
             var dtos = _mapper.Map<ICollection<FeedDto>>(entities);
             return dtos;
         }
-
-        public async Task<ICollection<FeedItemDto>> GetFavoriteFeedItemsAsync()
-        {
-            using var context = _factory.CreateDbContext();
-            var entities = await context.FeedItems.Where(x => x.IsFavorite).ToListAsync();
-            var dtos = _mapper.Map<ICollection<FeedItemDto>>(entities);
-            return dtos;
-        }
+        public Task<PagedList<FeedItemDto>> GetUnreadFeedItemsAsync(int page)
+        => GetFeedItemsPreviewAsync(x => !x.IsRead, page);
+        public Task<PagedList<FeedItemDto>> GetFavoriteFeedItemsAsync(int page)
+            => GetFeedItemsPreviewAsync(x => x.IsFavorite, page);
 
         public Task<PagedList<FeedItemDto>> GetFeedItemsPreviewAsync(int feedPk, int page)
-            => GetFeedItemsPreviewAsync(x => x.SourceFeed.Pk == feedPk,page);
+            => GetFeedItemsPreviewAsync(x => x.SourceFeed.Pk == feedPk, page);
         public Task<PagedList<FeedItemDto>> GetFeedItemsPreviewAsync(int page)
-            => GetFeedItemsPreviewAsync(x=>true,page);
+            => GetFeedItemsPreviewAsync(x => true, page);
         public async Task<PagedList<FeedItemDto>> GetFeedItemsPreviewAsync(Expression<Func<FeedItem, bool>> query, int page)
         {
             using var context = _factory.CreateDbContext();
@@ -69,7 +65,7 @@ namespace bReader.Server.Services
                     Summary = i.Summary.Substring(0, i.Summary.Length < 200 ? i.Summary.Length : 200),
                     Title = i.Title
                 }).AsNoTracking();
-            var dto = itemPrevQuery.Select(x=>_mapper.Map<FeedItemDto>(x));
+            var dto = itemPrevQuery.Select(x => _mapper.Map<FeedItemDto>(x));
             var result = await CreatePagedListAsync(dto, page, int.Parse(await _setting.GetSettingAsync(SettingKeyMap.PageSize)));
             return result;
         }
@@ -201,7 +197,7 @@ namespace bReader.Server.Services
                 item.SourceFeed = entity;
 
                 var existing = await context.FeedItems.SingleOrDefaultAsync(x => x.Id == item.Id);
-                if (existing != null && existing.SourceFeed==entity)
+                if (existing != null && existing.SourceFeed == entity)
                 {
                     //keep current state
                     item.IsFavorite = existing.IsFavorite;

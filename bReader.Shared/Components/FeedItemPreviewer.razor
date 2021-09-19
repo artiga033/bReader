@@ -1,58 +1,67 @@
 ﻿@using BlazorFluentUI
 @using Humanizer
 
-<div>
-    <PrimaryButton @onclick="async()=> await SetItemsReadAsync(items.Select(x=>x.Pk))">全部设为已读</PrimaryButton>
-    <ul class="items-container">
-        @foreach (var item in items)
+@if (display)
+{
+    <div>
+        @if (!string.IsNullOrWhiteSpace(Label))
         {
-            <li>
-                <div class=@($"feed-item-previewer card {(item.IsRead ? string.Empty : NotReadClass)}")>
-                    <span class="item-basic-info">
-                        <span class="headline">
-                            <NavLink href=@($"feeditem/{item.Pk}")>
-                                <h3>@item.Title</h3>
-                            </NavLink>
-                            @item.SourceFeed.Title
-                        </span>
-                        <span>
-                            <span title="发布时间">
-                                <Icon IconName="TimeEntry" />@item.PublishDate.Humanize()
-                            </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            @if (item.LastUpdatedTime != default(DateTimeOffset))
-                            {
-                                <span title="更新时间">
-                                    <Icon IconName="ReminderTime" />@item.LastUpdatedTime.Humanize()
-                                </span>
-                            }
-                        </span>
-                    </span>
-                    @foreach (var i in item.Authors)
-                    {
-                        <a href="@(i.Uri ?? "javascript:void;")" class="text-secondary">@($"{i.Name}<{i.Email}>")</a>
-                    }
-                    @((MarkupString)item.Summary)
-                </div>
-            </li>
+            <h3>@Label</h3>
         }
-    </ul>
-    <div class="pagination-bar">
-        <CommandButton Text="前一页" Disabled="@(!items.HasPrevious)" OnClick="async ()=> await ChangePage(items.CurrentPage-1)" />
-        @* Something's wrong with the BFU's component, so we'll just use pure html element*@
-        <input class=".ms-TextField-field" @onchange="async (ChangeEventArgs __e)=>await ChangePage(int.Parse(__e.Value.ToString()))" type="number" />
+        <PrimaryButton @onclick="async()=> await SetItemsReadAsync(items.Select(x=>x.Pk))">全部设为已读</PrimaryButton>
+        <ul class="items-container">
+            @foreach (var item in items)
+            {
+                <li>
+                    <div class=@($"feed-item-previewer card {(item.IsRead ? string.Empty : NotReadClass)}")>
+                        <span class="item-basic-info">
+                            <span class="headline">
+                                <NavLink href=@($"feeditem/{item.Pk}")>
+                                    <h3>@item.Title</h3>
+                                </NavLink>
+                                @item.SourceFeed.Title
+                            </span>
+                            <span>
+                                <span title="发布时间">
+                                    <Icon IconName="TimeEntry" />@item.PublishDate.Humanize()
+                                </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                @if (item.LastUpdatedTime != default(DateTimeOffset))
+                                {
+                                    <span title="更新时间">
+                                        <Icon IconName="ReminderTime" />@item.LastUpdatedTime.Humanize()
+                                    </span>
+                                }
+                            </span>
+                        </span>
+                        @foreach (var i in item.Authors)
+                        {
+                            <a href="@(i.Uri ?? "javascript:void;")" class="text-secondary">@($"{i.Name}<{i.Email}>")</a>
+                        }
+                        @((MarkupString)item.Summary)
+                    </div>
+                </li>
+            }
+        </ul>
+        <div class="pagination-bar">
+            <CommandButton Text="前一页" Disabled="@(!items.HasPrevious)" OnClick="async ()=> await ChangePage(items.CurrentPage-1)" />
+            @* Something's wrong with the BFU's component, so we'll just use pure html element*@
+            <input class=".ms-TextField-field" @onchange="async (ChangeEventArgs __e)=>await ChangePage(int.Parse(__e.Value.ToString()))" type="number" />
 
-        <CommandButton Text="后一页" Disabled="@(!items.HasNext)" OnClick="async ()=> await ChangePage(items.CurrentPage+1)" />
-    </div>
-</div>
+            <CommandButton Text="后一页" Disabled="@(!items.HasNext)" OnClick="async ()=> await ChangePage(items.CurrentPage+1)" />
+        </div>
+    </div> }
 @code {
     [CascadingParameter]
     public Func<Task> RefreshLayout { get; set; }
     private PagedList<FeedItemDto> items;
     [Parameter]
     public Func<int, Task<PagedList<FeedItemDto>>> JumpPage { get; set; }
+    [Parameter]
+    public string Label { get; set; } = "";
     [Inject]
     private IFeedService FeedService { get; set; }
     private const string NotReadClass = "not-read";
+    public bool display{ get; set; }
 
     public async Task ChangePage(int page)
     {
@@ -71,6 +80,8 @@
     protected override async Task OnInitializedAsync()
     {
         await ChangePage(1);
+        if (items!=null&&items.Count!=0)
+            this.display = true;
         await base.OnInitializedAsync();
     }
 }

@@ -19,7 +19,8 @@ namespace bReader.Shared.Services
         public Task<ICollection<FeedGroupDto>> GetFeedGroupsAsync();
         [Obsolete("You may use GetFeedAsync() and query the favorite ones yourself")]
         public Task<ICollection<FeedDto>> GetFavoriteFeedsAsync();
-        public Task<ICollection<FeedItemDto>> GetFavoriteFeedItemsAsync();
+        public Task<PagedList<FeedItemDto>> GetFavoriteFeedItemsAsync(int page);
+        public Task<PagedList<FeedItemDto>> GetUnreadFeedItemsAsync(int page);
         public Task<PagedList<FeedItemDto>> GetFeedItemsPreviewAsync(int feedPk,int page);
         public Task<PagedList<FeedItemDto>> GetFeedItemsPreviewAsync(int page);
         /// <summary>
