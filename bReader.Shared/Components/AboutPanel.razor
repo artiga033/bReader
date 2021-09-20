@@ -24,7 +24,7 @@
 @code {
 	private string GetCurrentVersion()
 	{
-		Assembly assembly = Assembly.GetExecutingAssembly();
+		Assembly assembly = Assembly.GetEntryAssembly();
 		FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
 		string version = fileVersionInfo.ProductVersion ?? "Unknown";
 		return version;
