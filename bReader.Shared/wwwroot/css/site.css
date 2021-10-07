@@ -3,6 +3,13 @@ html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
+img, video, iframe, canvas, code {
+    max-width: 100%;
+}
+
+pre {
+    overflow:auto;
+}
 
 .content {
     padding-top: 1.1rem;
