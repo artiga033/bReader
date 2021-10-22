@@ -26,13 +26,13 @@ jobs:
     - name: Publish bReader.Server linux-x64
       run: dotnet publish -c release -r linux-x64 .\bReader.Server\ --no-self-contained -p:Version="${{ github.event.inputs.version }}" -p:PublishSingleFile=True
     - name: Publish bReader.Server windows-x64
-      run: dotnet publish -c release -r windows-x64 .\bReader.Server\ --no-self-contained -p:Version="${{ github.event.inputs.version }}" -p:PublishSingleFile=True
+      run: dotnet publish -c release -r win-x64 .\bReader.Server\ --no-self-contained -p:Version="${{ github.event.inputs.version }}" -p:PublishSingleFile=True
     - name: Publish bReader.Server linux-arm64
       run: dotnet publish -c release -r linux-arm64 .\bReader.Server\ --no-self-contained -p:Version="${{ github.event.inputs.version }}" -p:PublishSingleFile=True
     - name: Publish bReader.Server linux-arm
       run: dotnet publish -c release -r linux-arm .\bReader.Server\ --no-self-contained -p:Version="${{ github.event.inputs.version }}" -p:PublishSingleFile=True
     - name: Publish bReader.Server Windows-ReadyToRun
-      run: dotnet publish -c release -r windows-x64 .\bReader.Server\ --no-self-contained -p:Version="${{ github.event.inputs.version }}" -p:PublishSingleFile=True -p:PublishReadyToRun=true
+      run: dotnet publish -c release -r win-x64 .\bReader.Server\ --no-self-contained -p:Version="${{ github.event.inputs.version }}" -p:PublishSingleFile=True -p:PublishReadyToRun=true
 
     - name: Create runtime crossplat archive
       run: Compress-Archive -Path .\bReader.Server\bin\release\net5.0\publish\ -DestinationPath .\bReader-runtime-crossplat_${{github.event.inputs.version}}.zip
