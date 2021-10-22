@@ -1,13 +1,12 @@
 name: .NET
 
 on:
- workflow_call:
+ workflow_dispatch:
     inputs:
       version:
         description: '版本号(不加v)'
         default: '0.0.0-preview'
         required: true
-        type: string
 
 jobs:
   build:
