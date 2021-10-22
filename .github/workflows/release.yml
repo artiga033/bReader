@@ -1,0 +1,60 @@
+name: .NET
+
+on:
+ workflow_dispatch:
+    inputs:
+      version:
+        description: '版本号(不加v)'
+        default: '0.0.0-preview'
+        required: true
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Publish bReader.Server Runtime CrossPlat
+      run: dotnet publish -c release .\bReader.Server\ --no-self-contained -p:Version="${{ github.event.inputs.version }}"
+    - name: Publish bReader.Server linux-x64
+      run: dotnet publish -c release -r linux-x64 .\bReader.Server\ --no-self-contained -p:Version="${{ github.event.inputs.version }}" -p:PublishSingleFile=True
+    - name: Publish bReader.Server windows-x64
+      run: dotnet publish -c release -r windows-x64 .\bReader.Server\ --no-self-contained -p:Version="${{ github.event.inputs.version }}" -p:PublishSingleFile=True
+    - name: Publish bReader.Server linux-arm64
+      run: dotnet publish -c release -r linux-arm64 .\bReader.Server\ --no-self-contained -p:Version="${{ github.event.inputs.version }}" -p:PublishSingleFile=True
+    - name: Publish bReader.Server linux-arm
+      run: dotnet publish -c release -r linux-arm .\bReader.Server\ --no-self-contained -p:Version="${{ github.event.inputs.version }}" -p:PublishSingleFile=True
+    - name: Publish bReader.Server Windows-ReadyToRun
+      run: dotnet publish -c release -r windows-x64 .\bReader.Server\ --no-self-contained -p:Version="${{ github.event.inputs.version }}" -p:PublishSingleFile=True -p:PublishReadyToRun=true
+
+    - name: Create runtime crossplat archive
+      run: Compress-Archive -Path .\bReader.Server\bin\release\net5.0\publish\ -DestinationPath .\bReader-runtime-crossplat_${{github.event.inputs.version}}.zip
+    - name: Create runtime linux-x64
+      run: Compress-Archive -Path .\bReader.Server\bin\release\net5.0\linux-x64\publish\ -DestinationPath .\bReader-linux-x64_${{github.event.inputs.version}}.zip
+    - name: Create runtime windows-x64
+      run: Compress-Archive -Path .\bReader.Server\bin\release\net5.0\windows-x64\publish\ -DestinationPath .\bReader-windows-x64_${{github.event.inputs.version}}.zip
+    - name: Create runtime linux-arm64
+      run: Compress-Archive -Path .\bReader.Server\bin\release\net5.0\linux-arm64\publish\ -DestinationPath .\bReader-linux-arm64_${{github.event.inputs.version}}.zip
+    - name: Create runtime linux-arm
+      run: Compress-Archive -Path .\bReader.Server\bin\release\net5.0\linux-arm\publish\ -DestinationPath .\bReader-linux-arm_${{github.event.inputs.version}}.zip
+    - name: Create runtime Windows-ReadyToRun
+      run: Compress-Archive -Path .\bReader.Server\bin\release\net5.0\Windows-ReadyToRun\publish\ -DestinationPath .\bReader-Windows-ReadyToRun_${{github.event.inputs.version}}.zip
+ 
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          bReader-runtime-crossplat_${{github.event.inputs.version}}.zip
+          bReader-linux-x64_${{github.event.inputs.version}}.zip
+          bReader-windows-x64_${{github.event.inputs.version}}.zip
+          bReader-linux-arm64_${{github.event.inputs.version}}.zip
+          bReader-linux-arm_${{github.event.inputs.version}}.zip
+          bReader-Windows-ReadyToRun_${{github.event.inputs.version}}.zip
