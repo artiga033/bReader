@@ -1,10 +1,4 @@
 ﻿using bReader.Shared.Services;
-using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace bReader.Server.Services
 {
@@ -27,7 +21,7 @@ namespace bReader.Server.Services
         public RefreshBackgroundService(ISettingService settingService, AutoMapper.IMapper mapper, Microsoft.EntityFrameworkCore.IDbContextFactory<Data.FeedDbContext> factory)
         {
             this._settingService = settingService;
-            this._feedService = new FeedDataService(mapper, factory,_settingService);
+            this._feedService = new FeedDataService(mapper, factory, _settingService);
         }
     }
 }

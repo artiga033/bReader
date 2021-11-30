@@ -1,8 +1,4 @@
-﻿using bReader.Shared.Models;
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 
 namespace bReader.Shared.Models.Parser
 {
@@ -31,8 +27,6 @@ namespace bReader.Shared.Models.Parser
             parsedFeed.Title = feedElement.Element(atom + "title")?.Value.Trim() ?? parsedFeed.Title;
             parsedFeed.Copyright = feedElement.Element(atom + "rights")?.Value.Trim() ?? parsedFeed.Copyright;
             parsedFeed.Description = feedElement.Element(atom + "subtitle")?.Value.Trim() ?? parsedFeed.Description;
-            //parsedFeed.Base = feedElement.Attribute(_xml + "base")?.Value;
-            //parsedFeed.Id = feedElement.Element(atom + "id")?.Value.Trim();
 
             if (TryParseAtom10Timestamp(feedElement.Element(atom + "updated"), out var parsedUpdated))
             {
@@ -89,20 +83,17 @@ namespace bReader.Shared.Models.Parser
                 }
             }
 
-            //// extensions
-            //ExtensibleEntityParser.ParseXElementExtensions(feedElement, extensionManifestDirectory, parsedFeed);
-
             return true;
         }
 
-        private static bool TryParseAtom10Entry(XElement entryElement, XNamespace atom,  out FeedItemDto parsedEntry)
+        private static bool TryParseAtom10Entry(XElement entryElement, XNamespace atom, out FeedItemDto parsedEntry)
         {
             parsedEntry = new();
 
             if (entryElement == null)
                 return false;
 
-            parsedEntry.Id = entryElement.Element(atom + "id")?.Value.Trim()??parsedEntry.Id;
+            parsedEntry.Id = entryElement.Element(atom + "id")?.Value.Trim() ?? parsedEntry.Id;
             parsedEntry.Title = entryElement.Element(atom + "title")?.Value.Trim() ?? parsedEntry.Title;
             parsedEntry.Content = entryElement.Element(atom + "content")?.Value.Trim() ?? parsedEntry.Content;
             parsedEntry.Summary = entryElement.Element(atom + "summary")?.Value.Trim() ?? parsedEntry.Summary;
@@ -148,68 +139,8 @@ namespace bReader.Shared.Models.Parser
             {
                 parsedEntry.PublishDate = parsedPublished;
             }
-
-            //if (TryParseAtom10Text(entryElement.Element(atom + "rights"), out var parsedRights))
-            //{
-            //    parsedEntry.Rights = parsedRights;
-            //}
-
-            //if (TryParseAtom10Source(entryElement.Element(atom + "source"), atom, out var parsedSource))
-            //{
-            //    parsedEntry.Source = parsedSource;
-            //}
-
-            //// extensions
-            //ExtensibleEntityParser.ParseXElementExtensions(entryElement, extensionManifestDirectory, parsedEntry);
-
             return true;
         }
-
-        //private static bool TryParseAtom10Source(XElement sourceElement, XNamespace atom, out Atom10Source parsedSource)
-        //{
-        //    parsedSource = default;
-
-        //    if (sourceElement == null)
-        //        return false;
-
-        //    parsedSource = new Atom10Source();
-
-        //    parsedSource.Id = sourceElement.Element(atom + "id")?.Value.Trim();
-
-        //    if (TryParseAtom10Text(sourceElement.Element(atom + "title"), out var parsedTitle))
-        //    {
-        //        parsedSource.Title = parsedTitle;
-        //    }
-
-        //    if (TryParseAtom10Timestamp(sourceElement.Element(atom + "updated"), out var parsedUpdated))
-        //    {
-        //        parsedSource.Updated = parsedUpdated;
-        //    }
-
-        //    return true;
-        //}
-
-        //private static bool TryParseAtom10Content(XElement contentElement, out Atom10Content parsedContent)
-        //{
-        //    parsedContent = default;
-
-        //    if (contentElement == null)
-        //        return false;
-
-        //    parsedContent = new Atom10Content();
-
-        //    parsedContent.Type = contentElement.Attribute("type")?.Value ?? "text";
-        //    parsedContent.Src = contentElement.Attribute("src")?.Value;
-
-        //    if (!TryParseValueByType(parsedContent.Type, contentElement, out var parsedValue))
-        //        return false;
-
-        //    parsedContent.Value = parsedValue;
-        //    parsedContent.Lang = contentElement.Attribute(_xml + "lang")?.Value;
-        //    parsedContent.Base = contentElement.Attribute(_xml + "base")?.Value;
-
-        //    return true;
-        //}
 
         private static bool TryParseAtom10Category(XElement categoryElement, out CategoryDto parsedCategory)
         {
@@ -231,7 +162,7 @@ namespace bReader.Shared.Models.Parser
             if (linkElement == null)
                 return false;
             string? href = linkElement.Attribute("href")?.Value;
-            bool result = Uri.TryCreate(href,UriKind.RelativeOrAbsolute, out link);
+            bool result = Uri.TryCreate(href, UriKind.RelativeOrAbsolute, out link);
             return result;
         }
 

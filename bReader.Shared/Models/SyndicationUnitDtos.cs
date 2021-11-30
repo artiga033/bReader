@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-
-namespace bReader.Shared.Models
+﻿namespace bReader.Shared.Models
 {
     [Serializable]
     public class PersonDto

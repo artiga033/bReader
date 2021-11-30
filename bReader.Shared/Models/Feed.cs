@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.ServiceModel.Syndication;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace bReader.Shared.Models
 {
@@ -12,7 +6,8 @@ namespace bReader.Shared.Models
     {
         [Key]
         public int Pk { get; set; }//The rss doc itself has an "Id" property, in case of confusion
-        [Url][Required]
+        [Url]
+        [Required]
         public string? SubscribeLink { get; set; }
         public int UnreadCount { get; set; }
         /// <summary>

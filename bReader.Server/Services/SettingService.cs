@@ -2,10 +2,6 @@
 using bReader.Shared.Models;
 using bReader.Shared.Services;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace bReader.Server.Services
 {
@@ -33,7 +29,7 @@ namespace bReader.Server.Services
             using var context = _factory.CreateDbContext();
             //use a lookuptable exchanging space with time
             var lookup = await context.Settings.AsNoTracking().ToDictionaryAsync(x => x.Key, x => x.Id);
-            var sets = settings.Select(x => new AppSetting() { Id = lookup.ContainsKey(x.Key)?lookup[x.Key]:0, Key = x.Key, Value = x.Value });
+            var sets = settings.Select(x => new AppSetting() { Id = lookup.ContainsKey(x.Key) ? lookup[x.Key] : 0, Key = x.Key, Value = x.Value });
             context.UpdateRange(sets);
             this.cached = settings;// updated cached data
             return await context.SaveChangesAsync() > 0;

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace bReader.Shared.Models
+﻿namespace bReader.Shared.Models
 {
     public class FeedItemDto
     {
@@ -18,10 +12,10 @@ namespace bReader.Shared.Models
         /// Get or set the value of whether the feed item has been marked as "Favorite".
         /// </summary>
         public bool IsFavorite { get; set; }
-        public ICollection<CategoryDto> Categories { get; set; }= new List<CategoryDto>();
+        public ICollection<CategoryDto> Categories { get; set; } = new List<CategoryDto>();
         public string Content { get; set; } = "";
-        public ICollection<PersonDto> Authors { get; set; }= new List<PersonDto>();
-        public ICollection<Uri> Links { get; set; }=new List<Uri>();
+        public ICollection<PersonDto> Authors { get; set; } = new List<PersonDto>();
+        public ICollection<Uri> Links { get; set; } = new List<Uri>();
         public DateTimeOffset LastUpdatedTime { get; set; }
         public DateTimeOffset PublishDate { get; set; }
         public FeedDto? SourceFeed { get; set; }

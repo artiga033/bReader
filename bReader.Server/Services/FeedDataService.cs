@@ -5,14 +5,7 @@ using bReader.Shared.Models.Parser;
 using bReader.Shared.Services;
 using bReader.Shared.Utils;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Net.Http;
-using System.ServiceModel.Syndication;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace bReader.Server.Services
 {

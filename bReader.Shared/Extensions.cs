@@ -1,9 +1,4 @@
 ﻿using bReader.Shared.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace bReader.Shared
 {
@@ -33,14 +28,14 @@ namespace bReader.Shared
             }
             return r;
         }
-        public static void AddIfNone<Tkey,TValue> (this IDictionary<Tkey,TValue> dictionary,Tkey key,TValue value)
+        public static void AddIfNone<Tkey, TValue>(this IDictionary<Tkey, TValue> dictionary, Tkey key, TValue value)
         {
             if (!dictionary.ContainsKey(key))
-                dictionary.Add(key,value);
+                dictionary.Add(key, value);
         }
-        public static void AddIfNotNull<T>(this ICollection<T> collection,T? item)
+        public static void AddIfNotNull<T>(this ICollection<T> collection, T? item)
         {
-            if(item!=null)
+            if (item != null)
                 collection.Add(item);
         }
     }

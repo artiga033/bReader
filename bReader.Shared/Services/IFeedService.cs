@@ -1,18 +1,12 @@
 ﻿using bReader.Shared.Models;
 using bReader.Shared.Utils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace bReader.Shared.Services
 {
     public interface IFeedService
     {
- 
+
         /// <summary>
         /// Get grouped feeds from storage.
         /// </summary>
@@ -21,7 +15,7 @@ namespace bReader.Shared.Services
         public Task<ICollection<FeedDto>> GetFavoriteFeedsAsync();
         public Task<PagedList<FeedItemDto>> GetFavoriteFeedItemsAsync(int page);
         public Task<PagedList<FeedItemDto>> GetUnreadFeedItemsAsync(int page);
-        public Task<PagedList<FeedItemDto>> GetFeedItemsPreviewAsync(int feedPk,int page);
+        public Task<PagedList<FeedItemDto>> GetFeedItemsPreviewAsync(int feedPk, int page);
         public Task<PagedList<FeedItemDto>> GetFeedItemsPreviewAsync(int page);
         /// <summary>
         /// use an queryExpression to query data.
@@ -33,7 +27,7 @@ namespace bReader.Shared.Services
         /// <param name="size"></param>
         /// <returns></returns>
         [Obsolete("Avoid using this method")]
-        public Task<PagedList<FeedItemDto>> GetFeedItemsPreviewAsync(Expression<Func<FeedItem,bool>> query,int page);
+        public Task<PagedList<FeedItemDto>> GetFeedItemsPreviewAsync(Expression<Func<FeedItem, bool>> query, int page);
         public Task<FeedItemDto> GetFeedItemAsync(int pk);
 
         /// <summary>
@@ -46,7 +40,7 @@ namespace bReader.Shared.Services
         public Task RefreshAllFeedsAsync(IProgress<int> progress);
         public Task RefreshAllFeedsAsync(CancellationToken cancellationToken);
 
-        public Task<bool> AddFeedAsync(FeedCreateUpdateDto createDto,int groupId);
+        public Task<bool> AddFeedAsync(FeedCreateUpdateDto createDto, int groupId);
         public Task<bool> DeleteFeedAsync(int pk);
 
         public Task SetItemsReadAsync(IEnumerable<int> pks);

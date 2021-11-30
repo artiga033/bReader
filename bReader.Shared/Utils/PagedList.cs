@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace bReader.Shared.Utils
+﻿namespace bReader.Shared.Utils
 {
     public class PagedList<T> : List<T>
     {

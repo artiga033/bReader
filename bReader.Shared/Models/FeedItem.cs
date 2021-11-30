@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace bReader.Shared.Models
 {
@@ -61,7 +57,7 @@ namespace bReader.Shared.Models
                 return false;
 
             Func<FeedItem, byte[]> hash = (x) => HashAlgorithm.Create("MD5")?.ComputeHash(Encoding.UTF8.GetBytes(x.Id + x.Title + x.Summary + x.Content))
-                                                    ??BitConverter.GetBytes(x.GetHashCode());//If MD5 is not usable on specific platform
+                                                    ?? BitConverter.GetBytes(x.GetHashCode());//If MD5 is not usable on specific platform
             return hash(x) == hash(y);
         }
 

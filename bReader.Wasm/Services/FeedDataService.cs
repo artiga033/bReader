@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using bReader.Shared.Models;
-using bReader.Shared.Services;
+﻿using AutoMapper;
 using Blazored.LocalStorage;
-using AutoMapper;
-using System.Net.Http;
-using System.ServiceModel.Syndication;
-using System.Linq;
 using bReader.Shared;
-using Microsoft.AspNetCore.Components.WebAssembly.Http;
-using bReader.Shared.Utils;
-using System.Linq.Expressions;
+using bReader.Shared.Models;
 using bReader.Shared.Models.Parser;
+using bReader.Shared.Services;
+using bReader.Shared.Utils;
+using Microsoft.AspNetCore.Components.WebAssembly.Http;
+using System.Linq.Expressions;
 
 namespace bReader.Wasm.Services
 {
@@ -217,6 +210,16 @@ namespace bReader.Wasm.Services
         }
 
         Task<PagedList<FeedItemDto>> IFeedService.GetFeedItemsPreviewAsync(int page)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PagedList<FeedItemDto>> GetFavoriteFeedItemsAsync(int page)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PagedList<FeedItemDto>> GetUnreadFeedItemsAsync(int page)
         {
             throw new NotImplementedException();
         }

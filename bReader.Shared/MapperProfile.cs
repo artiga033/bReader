@@ -1,11 +1,6 @@
 ﻿using AutoMapper;
 using bReader.Shared.Models;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace bReader.Shared
 {
@@ -31,7 +26,7 @@ namespace bReader.Shared
                 .ForMember(dest => dest.SubscribeLink, opt => opt.Ignore())
                 .ForMember(dest => dest.IsFavorite, opt => opt.Ignore())
                 .ForMember(dest => dest.UnreadCount, opt => opt.Ignore())
-                .ForMember(dest=>dest.Group,opt=> opt.Ignore())
+                .ForMember(dest => dest.Group, opt => opt.Ignore())
                 .ForMember(dest => dest.Items, opt => opt.Ignore());//dont map, we'll seperately handle it.
 
             CreateMap<FeedItem, FeedItemDto>();
@@ -46,7 +41,7 @@ namespace bReader.Shared
     {
         public TDestination Convert(string source, TDestination destination, ResolutionContext context)
         {
-            return JsonSerializer.Deserialize<TDestination>(source)??throw new ArgumentNullException(nameof(source));
+            return JsonSerializer.Deserialize<TDestination>(source) ?? throw new ArgumentNullException(nameof(source));
         }
     }
     public class JsonSerializeConverter<TSource> : ITypeConverter<TSource, string>
