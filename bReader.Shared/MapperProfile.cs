@@ -1,14 +1,14 @@
 ﻿using AutoMapper;
 using bReader.Shared.Models;
 using System.Text.Json;
-
+using AutoMapper.Internal;
 namespace bReader.Shared
 {
     public class MapperProfile : Profile
     {
         public MapperProfile()
         {
-            ForAllPropertyMaps(p => p.DestinationMember == null, (p, cfg) => cfg.UseDestinationValue());
+            this.Internal().ForAllPropertyMaps(p => p.DestinationMember == null, (p, cfg) => cfg.UseDestinationValue());
             CreateMap<string, Uri>().ConstructUsing(x => new Uri(x)).ReverseMap().ConvertUsing(x => x.ToString());
             CreateMap<string, ICollection<PersonDto>>().ConvertUsing(typeof(JsonDeserializeConverter<ICollection<PersonDto>>));
             CreateMap<string, ICollection<CategoryDto>>().ConvertUsing(typeof(JsonDeserializeConverter<ICollection<CategoryDto>>));
