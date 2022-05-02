@@ -1,5 +1,6 @@
 using Blazored.LocalStorage;
 using BlazorFluentUI;
+using Microsoft.Fast.Components.FluentUI;
 using bReader.Shared.Services;
 using bReader.Wasm.Services;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -17,6 +18,7 @@ namespace bReader.Wasm
                             .AddScoped<CommonJsInterop>();
 
             builder.Services.AddBlazoredLocalStorage().AddBlazorFluentUI();
+            builder.Services.AddFluentUIComponents();
             builder.Services.AddAutoMapper(typeof(bReader.Shared.MapperProfile));
             await builder.Build().RunAsync();
         }

@@ -19,13 +19,13 @@
     top: -2px;
 }
 
-nav {
-    background-color: var(--semanticColors-BodyBackground);
-    display: flex;
-    flex-direction: column;
+span.nav-content::after {
+    content: attr(data-unread);
+    background-color: var(--semanticColors-WarningBackground);
+    border-radius: 50% 50%;
+    padding: .2em .4em;
+    margin-left: 1px;
 }
-
-
 
 @media (min-width: 641px) {
     .navbar-toggler {

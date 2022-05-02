@@ -5,11 +5,11 @@
 
 @if (currentFeed.IsFavorite)
 {
-    <IconButton IconName="FavoriteStarFill" Style="color:gold" OnClick="async () => await SetCurrentFeedNotFavoriteAsync()"></IconButton>
+    <IconButton IconName="star_filled" Style="color:gold" OnClick="async () => await SetCurrentFeedNotFavoriteAsync()"></IconButton>
 }
 else
 {
-    <IconButton IconName="FavoriteStar" OnClick="async ()=> await SetCurrentFeedFavoriteAsync()"></IconButton>
+    <IconButton IconName="star" OnClick="async ()=> await SetCurrentFeedFavoriteAsync()"></IconButton>
 }
 <h3>@currentFeed.Title</h3>
 <summary class="text-secondary text-light">@currentFeed.Description</summary>

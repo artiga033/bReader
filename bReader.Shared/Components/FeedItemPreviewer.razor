@@ -23,12 +23,12 @@
                             </span>
                             <span>
                                 <span title="发布时间">
-                                    <Icon IconName="TimeEntry" />@item.PublishDate.Humanize()
+                                    <Icon IconName="calendar_edit" />@item.PublishDate.Humanize()
                                 </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                 @if (item.LastUpdatedTime != default(DateTimeOffset))
                                 {
                                     <span title="更新时间">
-                                        <Icon IconName="ReminderTime" />@item.LastUpdatedTime.Humanize()
+                                        <Icon IconName="calendar_clock" />@item.LastUpdatedTime.Humanize()
                                     </span>
                                 }
                             </span>

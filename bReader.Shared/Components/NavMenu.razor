@@ -1,60 +1,48 @@
-﻿@using BlazorFluentUI.Routing
-@using BlazorFluentUI.Themes.Default
+﻿@using BlazorFluentUI.Themes.Default
 
-<Stack Horizontal="false" VerticalFill="false">
+
+<div>
     <div class="top-row">
-        <span class="navbar-toggler"><IconButton AriaLabel="NavCollapseIcon" IconName="GlobalNavButton" @onclick="ToggleNavMenu"></IconButton></span>
+        <span class="navbar-toggler"><FluentButton @onclick="ToggleNavMenu"> <FluentIcon Name="navigation" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size20 Filled=false></FluentIcon></FluentButton></span>
         <span style="color:darkcyan;text-align:center;">bReader</span>
-        <span> <IconButton IconName="@themeIcon" @onclick="()=>SwitchTheme()"></IconButton></span>
+        <span> <FluentButton @onclick="SwitchTheme"><FluentIcon Name="@themeIcon" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size20 Filled=false></FluentIcon></FluentButton> </span>
     </div>
     <nav class="@NavMenuCssClass">
-        <Nav>
-            <NavLinkGroup>
-            <div @onclick="ToggleNavMenu">
-                <BlazorFluentUI.Routing.NavLink Name="首页" IconName="Home" Url=""></BlazorFluentUI.Routing.NavLink>
-                <BlazorFluentUI.Routing.NavLink Name="选项" IconName="Settings" Url="settings"></BlazorFluentUI.Routing.NavLink>
-            </div>
-            </NavLinkGroup>
-            <hr />
-            <style>
-                span.nav-content::after {
-                    content: attr(data-unread);
-                    background-color: var(--semanticColors-WarningBackground);
-                    border-radius: 50% 50%;
-                    padding: .2em .4em;
-                    margin-left:1px;
+        <FluentTreeView>
+            <FluentTreeItem><NavLink @onclick="ToggleNavMenu" href="/"><FluentIcon Name="home" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size16 Filled=false /> 首页 </NavLink></FluentTreeItem>
+            <FluentTreeItem><NavLink @onclick="ToggleNavMenu" href="settings"> <FluentIcon Name="settings" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size16 Filled=false /> 设置 </NavLink></FluentTreeItem>
+            <FluentDivider />
+
+            <FluentTreeItem>
+                收藏
+                @foreach (var fav in FavoriteFeeds)
+                {
+                    <FluentTreeItem>
+                        <NavLink @onclick="ToggleNavMenu" href=@($"feed/{fav.Pk}")><span class="nav-content" data-unread=@(fav.UnreadCount)> @fav.Title </span></NavLink>
+                    </FluentTreeItem>
                 }
-            </style>
-            <NavLinkGroup Name="收藏" CollapseByDefault="false">
-                <div @onclick="ToggleNavMenu">
-                    @foreach (var fav in FavoriteFeeds)
-                    {
-                        //The CSS isolation won't apply on this string we define, that's, this span's class would be purely "nav-content",
-                        //but the css,if written in "NavMenu.razor.css", would be conpiled to ".nav-content [randstr]",
-                        //making us have no choice but write the style inline.
-                        <BlazorFluentUI.Routing.NavLink Name="@($"<span class=\"nav-content\" data-unread={fav.UnreadCount}> {fav.Title} </span>")" Url=@($"feed/{fav.Pk}")></BlazorFluentUI.Routing.NavLink>
-                    }
-                </div>
-            </NavLinkGroup>
+            </FluentTreeItem>
+            <FluentDivider />
             @foreach (var group in FeedGroups)
             {
-                <NavLinkGroup Name="@group.Name" CollapseByDefault="true">
-                    <div @onclick="ToggleNavMenu">
-                        @foreach (var feed in group.Feeds)
-                        {
-                            <BlazorFluentUI.Routing.NavLink Name="@($"<span class=\"nav-content\" data-unread={feed.UnreadCount}> {feed.Title} </span>")" Url=@($"feed/{feed.Pk}")></BlazorFluentUI.Routing.NavLink>
-                        }
-                    </div>
-                </NavLinkGroup>
+                <FluentTreeItem>
+                    @group.Name
+                    @foreach (var feed in group.Feeds)
+                    {
+                        <FluentTreeItem>
+                            <NavLink @onclick="ToggleNavMenu" href=@($"feed/{feed.Pk}")><span class="nav-content" data-unread=@(feed.UnreadCount)> @feed.Title </span></NavLink>
+                        </FluentTreeItem>
+                    }
+                </FluentTreeItem>
             }
-        </Nav>
+        </FluentTreeView>
     </nav>
-</Stack>
+</div>
 
 @code {
     private bool collapseNavMenu = true;
 
-    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
     private void ToggleNavMenu()
     {
@@ -77,9 +65,10 @@
     public ThemeProvider? ThemeProvider { get; set; }
     private bool customTheme;
     private string? dark;
-    private string themeIcon => customTheme ? "ClearNight" : "Sunny";
-    private Task SwitchTheme()
+    private string themeIcon => customTheme ? "weather_moon" : "weather_sunny";
+    private void SwitchTheme()
     {
+        Console.WriteLine("SwitchTheme");
         customTheme = !customTheme;
         if (customTheme)
         {
@@ -94,6 +83,5 @@
             ThemeProvider?.UpdateTheme(new DefaultPalette());
             dark = "";
         }
-        return Task.CompletedTask;
     }
 }

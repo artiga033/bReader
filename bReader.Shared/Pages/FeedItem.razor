@@ -7,11 +7,11 @@
     <a href="@(feedItemDto.Links.FirstOrDefault())"><h3>@feedItemDto.Title</h3></a>
     @if (feedItemDto.IsFavorite)
     {
-        <IconButton IconName="FavoriteStarFill" Style="color:gold" OnClick="async () => await SetCurrentItemNotFavoriteAsync()"></IconButton>
+        <IconButton IconName="star_filled" Style="color:gold" OnClick="async () => await SetCurrentItemNotFavoriteAsync()"></IconButton>
     }
     else
     {
-        <IconButton IconName="FavoriteStar" OnClick="async ()=> await SetCurrentItemFavoriteAsync()"></IconButton>
+        <IconButton IconName="star" OnClick="async ()=> await SetCurrentItemFavoriteAsync()"></IconButton>
     }
     @foreach (var author in feedItemDto.Authors)
     {

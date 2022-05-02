@@ -8,8 +8,22 @@ img, video, iframe, canvas, code {
 }
 
 pre {
-    overflow:auto;
+    overflow: auto;
 }
+/* They are written here instead of NavMenu.razor.css because of css isolation does not affect NavLink component generated <a> label.*/
+nav {
+    background-color: var(--semanticColors-BodyBackground);
+    display: flex;
+    flex-direction: column;
+}
+
+    nav a:any-link {
+        position: absolute;
+        right: 0;
+        left: 0;
+        color:initial;
+        text-decoration:none;
+    }
 
 .content {
     padding-top: 1.1rem;
@@ -55,6 +69,8 @@ pre {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+
+
 
 /*h1,h2,h3,h4,h5,h6{
     display:inline;

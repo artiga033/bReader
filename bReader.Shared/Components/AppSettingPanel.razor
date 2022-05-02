@@ -9,7 +9,7 @@
     public Func<Task> RefreshLayout { get; set; }
     private Dictionary<string, string> AppSettings { get; set; }
     private bool saveSuccess, savecomplete;
-    private string saveStatusIcon => saveSuccess ? "CheckMark" : "ErrorBadge";
+    private string saveStatusIcon => saveSuccess ? "checkmark" : "error_circle";
     private string resultVisibility => $"visibility:{(savecomplete ? "visible" : "hidden")}";
     protected async override Task OnInitializedAsync()
     {
