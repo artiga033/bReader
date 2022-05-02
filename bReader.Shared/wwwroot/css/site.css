@@ -10,6 +10,10 @@ img, video, iframe, canvas, code {
 pre {
     overflow: auto;
 }
+
+fluent-listbox {
+    display: flex;
+}
 /* They are written here instead of NavMenu.razor.css because of css isolation does not affect NavLink component generated <a> label.*/
 nav {
     background-color: var(--semanticColors-BodyBackground);
@@ -21,8 +25,9 @@ nav {
         position: absolute;
         right: 0;
         left: 0;
-        color:initial;
-        text-decoration:none;
+        bottom: 0;
+        color: initial;
+        text-decoration: none;
     }
 
 .content {

@@ -1,32 +1,30 @@
 ﻿@page "/"
 @inject IFeedService FeedService
 @inject CommonJsInterop CommonJs
-<div class="card">
-	欢迎使用bReader
-</div>
-<div>现在有 @(unreadCount) 篇未读文章</div>
-<div class="card">
-	<FeedItemPreviewer Label="未读文章" JumpPage=UnreadJumpPage></FeedItemPreviewer>
-</div>
-
-<div class="card">
-	<FeedItemPreviewer Label="最新文章" JumpPage=LatestJumpPage></FeedItemPreviewer>
-</div>
+<FluentCard>
+    欢迎使用bReader
+    <FluentDivider />
+    现在有 @(unreadCount) 篇未读文章
+</FluentCard>
+<FluentDivider />
+<FeedItemPreviewer Label="未读文章" JumpPage=UnreadJumpPage></FeedItemPreviewer>
+<FluentDivider />
+<FeedItemPreviewer Label="最新文章" JumpPage=LatestJumpPage></FeedItemPreviewer>
 @code {
-	public Func<int, Task<PagedList<FeedItemDto>>> UnreadJumpPage => i => FeedService.GetUnreadFeedItemsAsync(i);
+    public Func<int, Task<PagedList<FeedItemDto>>> UnreadJumpPage => i => FeedService.GetUnreadFeedItemsAsync(i);
 
-	public Func<int, Task<PagedList<FeedItemDto>>> LatestJumpPage => i => FeedService.GetFeedItemsPreviewAsync(i);
-	[CascadingParameter]
-	public ICollection<FeedGroupDto> FeedGroups { get; set; }
-	private int unreadCount;
+    public Func<int, Task<PagedList<FeedItemDto>>> LatestJumpPage => i => FeedService.GetFeedItemsPreviewAsync(i);
+    [CascadingParameter]
+    public ICollection<FeedGroupDto> FeedGroups { get; set; }
+    private int unreadCount;
 
-	protected override void OnInitialized()
-	{
-		this.unreadCount = FeedGroups.GetAllFeeds().Sum(x => x.UnreadCount);
-		base.OnInitialized();
-	}
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		await CommonJs.SetTitle("首页");
-	}
+    protected override void OnInitialized()
+    {
+        this.unreadCount = FeedGroups.GetAllFeeds().Sum(x => x.UnreadCount);
+        base.OnInitialized();
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await CommonJs.SetTitle("首页");
+    }
 }

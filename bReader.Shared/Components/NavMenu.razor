@@ -8,34 +8,44 @@
         <span> <FluentButton @onclick="SwitchTheme"><FluentIcon Name="@themeIcon" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size20 Filled=false></FluentIcon></FluentButton> </span>
     </div>
     <nav class="@NavMenuCssClass">
-        <FluentTreeView>
-            <FluentTreeItem><NavLink @onclick="ToggleNavMenu" href="/"><FluentIcon Name="home" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size16 Filled=false /> 首页 </NavLink></FluentTreeItem>
-            <FluentTreeItem><NavLink @onclick="ToggleNavMenu" href="settings"> <FluentIcon Name="settings" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size16 Filled=false /> 设置 </NavLink></FluentTreeItem>
-            <FluentDivider />
+        <FluentListbox TValue=NavLink>
+            <FluentOption>
+                <NavLink @onclick="ToggleNavMenu" href="/"><FluentIcon Name="home" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size16 Filled=false /> 首页 </NavLink>
+            </FluentOption>
+            <FluentOption>
+                <NavLink @onclick="ToggleNavMenu" href="settings"> <FluentIcon Name="settings" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size16 Filled=false /> 设置 </NavLink>
+            </FluentOption>
+        </FluentListbox>
+        <FluentDivider />
 
-            <FluentTreeItem>
-                收藏
-                @foreach (var fav in FavoriteFeeds)
-                {
-                    <FluentTreeItem>
+        <FluentAccordion>
+            <FluentAccordionItem Expanded=true>
+                <span slot="heading"> 收藏</span>
+                <FluentListbox TValue=NavLink>
+                    @foreach (var fav in FavoriteFeeds)
+                        {
+                    <FluentOption>
                         <NavLink @onclick="ToggleNavMenu" href=@($"feed/{fav.Pk}")><span class="nav-content" data-unread=@(fav.UnreadCount)> @fav.Title </span></NavLink>
-                    </FluentTreeItem>
-                }
-            </FluentTreeItem>
+                    </FluentOption>
+                        }
+                </FluentListbox>
+            </FluentAccordionItem>
             <FluentDivider />
             @foreach (var group in FeedGroups)
             {
-                <FluentTreeItem>
-                    @group.Name
-                    @foreach (var feed in group.Feeds)
+                <FluentAccordionItem>
+                    <span slot="heading"> @group.Name</span>
+                    <FluentListbox TValue=NavLink>
+                        @foreach (var feed in group.Feeds)
                     {
-                        <FluentTreeItem>
+                        <FluentOption>
                             <NavLink @onclick="ToggleNavMenu" href=@($"feed/{feed.Pk}")><span class="nav-content" data-unread=@(feed.UnreadCount)> @feed.Title </span></NavLink>
-                        </FluentTreeItem>
+                        </FluentOption>
                     }
-                </FluentTreeItem>
+                </FluentListbox>
+            </FluentAccordionItem>
             }
-        </FluentTreeView>
+        </FluentAccordion>
     </nav>
 </div>
 

@@ -34,7 +34,8 @@ span.nav-content::after {
 
     .collapse {
         /* Never collapse the sidebar for wide screens */
-        display: block;
+        /* and not changing anything, just let nothing happen*/
+        /*display: block;*/
     }
 }
 

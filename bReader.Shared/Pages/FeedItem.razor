@@ -3,36 +3,42 @@
 @inject CommonJsInterop CommonJs
 @using Humanizer
 
-<div class="item-info card">
+<FluentCard class="item-info">
     <a href="@(feedItemDto.Links.FirstOrDefault())"><h3>@feedItemDto.Title</h3></a>
     @if (feedItemDto.IsFavorite)
     {
-        <IconButton IconName="star_filled" Style="color:gold" OnClick="async () => await SetCurrentItemNotFavoriteAsync()"></IconButton>
+        <FluentButton @onclick="async () => await SetCurrentItemNotFavoriteAsync()">
+            <FluentIcon Name="star" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size20 Filled=true UseAccentColor=false style="color:gold"></FluentIcon>
+        </FluentButton>
     }
     else
     {
-        <IconButton IconName="star" OnClick="async ()=> await SetCurrentItemFavoriteAsync()"></IconButton>
+        <FluentButton @onclick="async ()=> await SetCurrentItemFavoriteAsync()">
+            <FluentIcon Name="star" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size20 Filled=false></FluentIcon>
+        </FluentButton>
     }
     @foreach (var author in feedItemDto.Authors)
     {
         <a href="@author.Uri"><span class="text-secondary text-link">@($"{author.Name} <{author.Name}>")</span></a>
     }
-    @if (feedItemDto.PublishDate.DateTime != default(DateTime))
-    {
-        <span>@feedItemDto.PublishDate.Humanize()</span>
-    }
-
-    @if (feedItemDto.LastUpdatedTime.DateTime != default(DateTime))
-    {
-        <span>@feedItemDto.LastUpdatedTime.Humanize()</span>
-    }
-</div>
+    <span>
+        <span title="发布时间">
+            <FluentIcon Name="calendar_edit" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size20 Filled=false />@feedItemDto.PublishDate.Humanize()
+        </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        @if (feedItemDto.LastUpdatedTime != default(DateTimeOffset))
+        {
+            <span title="更新时间">
+                <FluentIcon Name="calendar_clock" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size20 Filled=false />@feedItemDto.LastUpdatedTime.Humanize()
+            </span>
+        }
+    </span>
+</FluentCard>
 <br />
-<div class="item-view card">
+<FluentCard class="item-view">
     @((MarkupString)feedItemDto.Summary)
     <hr class="hr-fading-info" multiple />
     @((MarkupString)feedItemDto.Content)
-</div>
+</FluentCard>
 @code {
     [CascadingParameter]
     public Func<Task> RefreshLayout { get; set; }
