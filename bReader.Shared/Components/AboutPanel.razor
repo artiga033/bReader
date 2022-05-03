@@ -4,51 +4,50 @@
 @using System.Text.Json
 @inject CommonJsInterop CommonJS
 <div>
-<h3>关于 bReader</h3>
-	当前程序版本: @GetCurrentVersion() <br />
-	最新版本: <span id="latest-version-info"></span>
+    <h3>关于 bReader</h3>
+    当前程序版本: @GetCurrentVersion() <br />
+    最新版本: <span id="latest-version-info"></span>
 </div>
 <div>
-	<h3>许可协议</h3>
-	bReader is opensource software licensed under <a href="https://github.com/artiga033/bReader/blob/main/LICENSE">MIT License</a>
-	<h6>引用或修改的开源组件</h6>
-	<ul>
-		<li>Microsoft .NET Extensive Components from nuget (<a target="_blank" href="https://licenses.nuget.org/MIT">MIT</a>&<a target="_blank" href="https://licenses.nuget.org/Apache-2.0">Apache-2.0</a>)</li>
-		<li>BlazorFLuentUI (<a target="_blank" href="https://github.com/BlazorFluentUI/BlazorFluentUI/blob/main/LICENSE">MIT</a>)</li>
-		<li>Humanizer (<a target="_blank" href="https://github.com/Humanizr/Humanizer/blob/main/LICENSE">MIT</a>)</li>
-		<li>AutoMapper (<a target="_blank" href="https://github.com/AutoMapper/AutoMapper/blob/master/LICENSE.txt">MIT</a>)</li>
-		<li>FeedPipes (<a target="_blank" href="https://github.com/tompazourek/Feedpipes/blob/master/LICENSE">MIT</a>)</li>(Modified Code under namespace bReader.Shared.Models.Parser)
-	</ul>
+    <h3>许可协议</h3>
+    bReader is opensource software licensed under <a href="https://github.com/artiga033/bReader/blob/main/LICENSE">MIT License</a>
+    <h6>引用或修改的开源组件</h6>
+    <ul>
+        <li>Microsoft .NET Extensive Components from nuget (<a target="_blank" href="https://licenses.nuget.org/MIT">MIT</a>&<a target="_blank" href="https://licenses.nuget.org/Apache-2.0">Apache-2.0</a>)</li>
+        <li>BlazorFLuentUI (<a target="_blank" href="https://github.com/BlazorFluentUI/BlazorFluentUI/blob/main/LICENSE">MIT</a>)</li>
+        <li>Humanizer (<a target="_blank" href="https://github.com/Humanizr/Humanizer/blob/main/LICENSE">MIT</a>)</li>
+        <li>AutoMapper (<a target="_blank" href="https://github.com/AutoMapper/AutoMapper/blob/master/LICENSE.txt">MIT</a>)</li>
+        <li>FeedPipes (<a target="_blank" href="https://github.com/tompazourek/Feedpipes/blob/master/LICENSE">MIT</a>)</li>(Modified Code under namespace bReader.Shared.Models.Parser)
+    </ul>
 </div>
 @code {
-	private string GetCurrentVersion()
-	{
-		Assembly assembly = Assembly.GetEntryAssembly();
-		FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
-		string version = fileVersionInfo.ProductVersion ?? "Unknown";
-		return version;
-	}
-	private async Task GetLatestVersion()
-	{
-		var httpClient = new HttpClient();
-		httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("CsharpHttpClient");
-		string version = "Unknown";
-		try
-		{
-			var releaseInfo = await httpClient.GetStringAsync("https://api.github.com/repos/artiga033/bReader/releases");
-			JsonDocument doc = JsonDocument.Parse(releaseInfo);
-			version= doc.RootElement.EnumerateArray().OrderBy(x => x.GetProperty("published_at").GetDateTime())
-				.FirstOrDefault().GetProperty("tag_name").GetString()??version;
-		}
-		catch
-		{
-			version = "获取版本信息失败";
-		}
-		await CommonJS.SetElementContent("latest-version-info", version);
-	}
-	protected override async Task OnInitializedAsync()
-	{
-		await base.OnInitializedAsync();
-		await GetLatestVersion();
-	}
+    private string GetCurrentVersion()
+    {
+        Assembly assembly = Assembly.GetEntryAssembly();
+        FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
+        string version = fileVersionInfo.ProductVersion ?? "Unknown";
+        return version;
+    }
+    private async Task GetLatestVersion()
+    {
+        var httpClient = new HttpClient();
+        httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("CsharpHttpClient");
+        string version = "Unknown";
+        try
+        {
+            var releaseInfo = await httpClient.GetStringAsync("https://api.github.com/repos/artiga033/bReader/releases");
+            JsonDocument doc = JsonDocument.Parse(releaseInfo);
+            version = doc.RootElement.EnumerateArray().FirstOrDefault().GetProperty("tag_name").GetString() ?? version;
+        }
+        catch
+        {
+            version = "获取版本信息失败";
+        }
+        await CommonJS.SetElementContent("latest-version-info", version);
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await GetLatestVersion();
+    }
 }

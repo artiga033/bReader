@@ -1,7 +1,4 @@
-﻿@using BlazorFluentUI.Themes.Default
-
-
-<div>
+﻿<div>
     <div class="top-row">
         <span class="navbar-toggler"><FluentButton @onclick="ToggleNavMenu"> <FluentIcon Name="navigation" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size20 Filled=false></FluentIcon></FluentButton></span>
         <span style="color:darkcyan;text-align:center;">bReader</span>
@@ -67,31 +64,12 @@
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        customTheme = ThemeProvider?.Theme.Palette.GetType() == typeof(DefaultPaletteDark);
     }
 
-
-    [Inject]
-    public ThemeProvider? ThemeProvider { get; set; }
-    private bool customTheme;
-    private string? dark;
-    private string themeIcon => customTheme ? "weather_moon" : "weather_sunny";
+    private bool isDark;
+    private string themeIcon => isDark ? "weather_moon" : "weather_sunny";
     private void SwitchTheme()
     {
-        Console.WriteLine("SwitchTheme");
-        customTheme = !customTheme;
-        if (customTheme)
-        {
-            var palette = new DefaultPaletteDark();
-            ThemeProvider?.UpdateTheme(palette, new DefaultSemanticColorsDark(palette), new DefaultSemanticTextColorsDark(palette));
-
-            //dark = $"background-color: {ThemeProvider?.Theme.SemanticColors.BodyBackground}";
-
-        }
-        else
-        {
-            ThemeProvider?.UpdateTheme(new DefaultPalette());
-            dark = "";
-        }
+        isDark = !isDark;
     }
 }
