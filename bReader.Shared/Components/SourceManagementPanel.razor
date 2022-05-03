@@ -1,97 +1,116 @@
-﻿@using BlazorFluentUI.Lists
-@using System.Windows.Input
+﻿@using System.Windows.Input
 @inject IFeedService FeedService
 
-<Dialog Title="添加订阅" IsOpen=@addDialogIsOpen IsBlocking="false" OnDismiss="args=>addDialogIsOpen = false">
-    <ChildContent>
-        <TextField Label="订阅地址/URL" Placeholder="https://example.com/feed/" @bind-Value="this.FeedToAdd.SubscribeLink"></TextField>
-        <Toggle Label="设为收藏" @bind-Checked="this.FeedToAdd.IsFavorite"></Toggle>
-        <Dropdown ItemsSource="FeedGroupsDropDownOption" Label="分组" @bind-SelectedOption="GroupIdOfFeedToAdd"></Dropdown>
-    </ChildContent>
-    <FooterTemplate>
-        <PrimaryButton Text="OK" OnClick="async ()=>  await AddFeedAsync(this.FeedToAdd,Convert.ToInt32(GroupIdOfFeedToAdd.Key))" />
-        <DefaultButton Text="Cancel" OnClick="()=>this.addDialogIsOpen=false" />
-    </FooterTemplate>
-</Dialog>
-<Stack>
-    <PrimaryButton Text="刷新所有RSS源" OnClick="async () => await RefreshAllFeeds()" Style="width:10em;align-self:flex-end;"></PrimaryButton>
-    <ProgressIndicator PercentComplete="feedRefreshPercent" Description="@progressDescription"></ProgressIndicator>
-    <CommandBar Items="commandBarItems" />
-    @* if you delete this <div> tag, BlazorFluentUI would throw an exception, a JSON Eccption. Why? Why!*@
-    <div data-is-scrollable="true" style="height:60vh;overflow-y:auto;">
-        <DetailsList ItemsSource="Feeds"
-                     Columns="Columns"
-                     GetKey=@(item => item.Pk)
-                     LayoutMode="DetailsListLayoutMode.Justified"
-                     TItem="FeedDto"
-                     Selection="selection"
-                     SelectionMode="SelectionMode.Multiple">
-        </DetailsList>
-    </div>
-</Stack>
+<FluentDialog Modal=true Hidden=@(!addDialogIsOpen)>
+    <h1>新增订阅</h1>
+    <br />
+    <FluentCard>
+        <FluentTextField style="width:100%;" Placeholder="https://example.com/feed/" @bind-Value="this.FeedToAdd.SubscribeLink">订阅地址/URL</FluentTextField>
+        <FluentDivider />
+        <br />
+        <FluentSwitch @bind-Checked="this.FeedToAdd.IsFavorite">设为收藏</FluentSwitch>
+        <FluentDivider />
+        <br />
+        <div>
+            <span>分组</span>
+            <FluentSelect @bind-Value="GroupIdOfFeedToAdd" TValue=int>
+                @foreach (var group in FeedGroups)
+                        {
+                <FluentOption Value=group.Id>@group.Name (@group.Id)</FluentOption>
+                        }
+            </FluentSelect>
+        </div>
+        <FluentDivider />
+        <br />
+        <FluentButton Appearance=Appearance.Accent @onclick="async ()=>  await AddFeedAsync(this.FeedToAdd,GroupIdOfFeedToAdd)">确定</FluentButton>
+        <FluentButton @onclick="()=>this.addDialogIsOpen=false">取消</FluentButton>
+    </FluentCard>
+</FluentDialog>
+<div>
+    <FluentButton Appearance=Appearance.Accent @onclick="async () => await RefreshAllFeeds()" style="width:10em;align-self:flex-end;">刷新所有RSS源</FluentButton>
+    <FluentProgress Paused=!feedRefreshing Value="feedRefreshPercent">@progressDescription</FluentProgress>
+    <FluentToolbar>
+        <FluentButton @onclick="AddCommand">新增</FluentButton>
+    </FluentToolbar>
+    <FluentDivider />
+    <FluentCard>
+        @*        <DetailsList ItemsSource="Feeds"
+            Columns="Columns"
+            GetKey=@(item => item.Pk)
+            LayoutMode="DetailsListLayoutMode.Justified"
+            TItem="FeedDto"
+            Selection="selection"
+            SelectionMode="SelectionMode.Multiple">
+            </DetailsList>*@
+        <FluentDataGrid GenerateHeader=GenerateHeaderOptions.Default RowsData=Feeds ColumnDefinitions=feedGridColumns GridTemplateColumns="1fr 3fr 5fr 2fr 1fr">
+            <HeaderCellTemplate>
+                @context.Title
+            </HeaderCellTemplate>
+            <RowItemTemplate>
+                <FluentDataGridRow TItem=FeedDto>
+                    <FluentDataGridCell GridColumn=1>
+                        @context.Pk
+                    </FluentDataGridCell>
+                    <FluentDataGridCell GridColumn=2>
+                        @context.Title
+                    </FluentDataGridCell>
+                    <FluentDataGridCell GridColumn=3>
+                        @context.SubscribeLink
+                    </FluentDataGridCell>
+                    <FluentDataGridCell GridColumn=4>
+                        @context.Group.Name
+                    </FluentDataGridCell>
+                    <FluentDataGridCell GridColumn=5>
+                        <FluentButton @onclick="async()=> await DeleteFeedAsync(context.Pk)"> <FluentIcon Name="delete" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size20 Filled=false></FluentIcon></FluentButton>
+                    </FluentDataGridCell>
+                </FluentDataGridRow>
+            </RowItemTemplate>
+        </FluentDataGrid>
+    </FluentCard>
+</div>
 
 @code {
     [CascadingParameter]
     public Func<Task> RefreshLayout { get; set; }
     [CascadingParameter]
     private ICollection<FeedGroupDto> FeedGroups { get; set; }
-    private IEnumerable<DropdownOption> FeedGroupsDropDownOption => FeedGroups.Select(x => new DropdownOption() { Key = x.Id.ToString(), Text = x.Name });
-    private IEnumerable<CommandBarItem> commandBarItems;
+    private IEnumerable<Option<int>> FeedGroupsDropDownOption => FeedGroups.Select(x => new Option<int>() { Key = x.Id, Value = x.Id });
 
     bool addDialogIsOpen;
-    private FeedCreateUpdateDto FeedToAdd;
-    private IDropdownOption GroupIdOfFeedToAdd;
-    private ICommand AddCommand;
+    private FeedCreateUpdateDto FeedToAdd = new();
+    private int GroupIdOfFeedToAdd = -1;
+    private List<ColumnDefinition<FeedDto>> feedGridColumns = new();
 
     System.Collections.Generic.List<FeedDto> Feeds => FeedGroups.GetAllFeeds();
-    Selection<FeedDto> selection = new Selection<FeedDto>();
-    public System.Collections.Generic.List<IDetailsRowColumn<FeedDto>> Columns = new();
-    public System.Collections.Generic.List<IDetailsRowColumn<FeedDto>> CustomColumns = new();
 
     private Progress<int> feedRefreshCompleted = new();
     private decimal feedRefreshPercent;
+    private string progressDescription = "";
+    private bool feedRefreshing = false;
 
     protected override void OnInitialized()
     {
-        this.AddCommand = new RelayCommand((o) =>
-        {
-            this.FeedToAdd = new();
-            addDialogIsOpen = true;
-            StateHasChanged();
-        });
-        commandBarItems = new CommandBarItem[]
-        {
-                new CommandBarItem(){IconName="Add",Text="新增",Command=AddCommand}
-        };
-
-        selection.GetKey = (item => item.Pk);
-        //Columns.Add(new DetailsRowColumn<FeedDto>("Key", x => x.Pk) { MaxWidth = 70, Index = 0 });
-        Columns.Add(new DetailsRowColumn<FeedDto>("源地址", x => x.SubscribeLink) { MinWidth = 150, Index = 1, IsResizable = true });
-        Columns.Add(new DetailsRowColumn<FeedDto>("标题", x => x.Title!) { Index = 2, MaxWidth = 110, IsResizable = true });
-        Columns.Add(new DetailsRowColumn<FeedDto>("分组", x => x.Group.Name) { Index = 3, MaxWidth = 50 });
-        Columns.Add(new DetailsRowColumn<FeedDto, FeedDto>("操作", x => x)
-        {
-            Index = 4,
-            ColumnItemTemplate = obj =>@<IconButton IconName="Delete" OnClick="async ()=>await DeleteFeedAsync(obj.Pk)" />
-        });
-
-        this.GroupIdOfFeedToAdd = FeedGroupsDropDownOption.FirstOrDefault();
-
         this.feedRefreshCompleted.ProgressChanged += OnRefreshProgressChanged;
+        feedGridColumns.Add(new ColumnDefinition<FeedDto>("ID", x => x.Pk));
+        feedGridColumns.Add(new ColumnDefinition<FeedDto>("标题", x => x.Title));
+        feedGridColumns.Add(new ColumnDefinition<FeedDto>("URL", x => x.SubscribeLink));
+        feedGridColumns.Add(new ColumnDefinition<FeedDto>("分组", x => x.Group));
+        feedGridColumns.Add(new ColumnDefinition<FeedDto>("操作", x => x.Pk));
         base.OnInitialized();
     }
 
-    private string progressDescription = "";
     private async Task RefreshAllFeeds()
     {
+        this.feedRefreshing = true;
         var t = FeedService.RefreshAllFeedsAsync(System.Threading.CancellationToken.None, feedRefreshCompleted);
-        await t.ContinueWith((t) => this.progressDescription = "刷新成功");
+        await t.ContinueWith((t) => this.progressDescription = "刷新成功").ContinueWith(t => this.feedRefreshing = false);
         await RefreshLayout();
     }
 
-    private void OnRefreshProgressChanged(object sender, int e)
+    private void OnRefreshProgressChanged(object? sender, int e)
     {
         this.feedRefreshPercent = (decimal)e / Feeds.Count;
+
         this.progressDescription = $"正在刷新rss源...{e}/{Feeds.Count}";
         StateHasChanged();
     }
@@ -107,7 +126,12 @@
         await RefreshLayout();
         this.addDialogIsOpen = false;
     }
-
+    private void AddCommand()
+    {
+        this.FeedToAdd = new();
+        addDialogIsOpen = true;
+        StateHasChanged();
+    }
     //moved to bReader.Shared.Extensions as extension method for IEnumable<FeedGroup>
     //private System.Collections.Generic.List<FeedDto> GetFeedsFromGrouped(ICollection<FeedGroupDto> groups)
     //{

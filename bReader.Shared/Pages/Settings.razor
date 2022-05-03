@@ -2,17 +2,14 @@
 @inject CommonJsInterop JsInterop
 
 <h3>设置</h3>
-<Pivot>
-    <PivotItem HeaderText="RSS订阅管理">
-        <SourceManagementPanel/>
-    </PivotItem>
-    <PivotItem HeaderText="设置">
-        <AppSettingPanel />
-    </PivotItem>
-    <PivotItem HeaderText="关于" IconName="info">
-        <AboutPanel/>
-    </PivotItem>
-</Pivot>
+<FluentTabs>
+    <FluentTab>RSS订阅管理</FluentTab>
+    <FluentTab>设置</FluentTab>
+    <FluentTab>关于</FluentTab>
+    <FluentTabPanel><SourceManagementPanel /></FluentTabPanel>
+    <FluentTabPanel><AppSettingPanel /></FluentTabPanel>
+    <FluentTabPanel><AboutPanel /></FluentTabPanel>
+</FluentTabs>
 
 @code {
     protected override async Task OnInitializedAsync()
