@@ -12,31 +12,33 @@
             @foreach (var item in items)
             {
                 <li>
-                    <div class=@($"feed-item-previewer card {(item.IsRead ? string.Empty : NotReadClass)}")>
-                        <span class="item-basic-info">
-                            <span class="headline">
-                                <NavLink href=@($"feeditem/{item.Pk}")>
-                                    <h3>@item.Title</h3>
-                                </NavLink>
-                                @item.SourceFeed.Title
+                    <div class=@(item.IsRead ? string.Empty : NotReadClass)>
+                        <FluentCard class=@($"feed-item-previewer")>
+                            <span class="item-basic-info">
+                                <span class="headline">
+                                    <NavLink href=@($"feeditem/{item.Pk}")>
+                                        <h3>@item.Title</h3>
+                                    </NavLink>
+                                    @item.SourceFeed.Title
+                                </span>
+                                <span>
+                                    <span title="发布时间">
+                                        <FluentIcon Name="calendar_edit" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size20 Filled=false />@item.PublishDate.Humanize()
+                                    </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    @if (item.LastUpdatedTime != default(DateTimeOffset))
+                                    {
+                                        <span title="更新时间">
+                                            <FluentIcon Name="calendar_clock" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size20 Filled=false />@item.LastUpdatedTime.Humanize()
+                                        </span>
+                                    }
+                                </span>
                             </span>
-                            <span>
-                                <span title="发布时间">
-                                    <FluentIcon Name="calendar_edit" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size20 Filled=false />@item.PublishDate.Humanize()
-                                </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                @if (item.LastUpdatedTime != default(DateTimeOffset))
-                                {
-                                    <span title="更新时间">
-                                        <FluentIcon Name="calendar_clock" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size20 Filled=false />@item.LastUpdatedTime.Humanize()
-                                    </span>
-                                }
-                            </span>
-                        </span>
-                        @foreach (var i in item.Authors)
-                        {
-                            <a href="@(i.Uri ?? "javascript:void;")" class="text-secondary">@($"{i.Name}<{i.Email}>")</a>
-                        }
-                        @((MarkupString)item.Summary)
+                            @foreach (var i in item.Authors)
+                            {
+                                <a href="@(i.Uri ?? "javascript:void;")" class="text-secondary">@($"{i.Name}<{i.Email}>")</a>
+                            }
+                            @((MarkupString)item.Summary)
+                        </FluentCard>
                     </div>
                 </li>
             }

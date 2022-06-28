@@ -17,5 +17,6 @@ export function setTitle(text) {
 }
 export function setElementContent(elementId, content) {
     var ele = document.getElementById(elementId);
-    ele.innerText = content;
+    if (ele != null)
+        ele.innerText = content;
 }

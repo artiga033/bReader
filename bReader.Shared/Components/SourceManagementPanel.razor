@@ -1,31 +1,7 @@
 ﻿@using System.Windows.Input
 @inject IFeedService FeedService
 
-<FluentDialog Modal=true Hidden=@(!addDialogIsOpen)>
-    <h1>新增订阅</h1>
-    <br />
-    <FluentCard>
-        <FluentTextField style="width:100%;" Placeholder="https://example.com/feed/" @bind-Value="this.FeedToAdd.SubscribeLink">订阅地址/URL</FluentTextField>
-        <FluentDivider />
-        <br />
-        <FluentSwitch @bind-Checked="this.FeedToAdd.IsFavorite">设为收藏</FluentSwitch>
-        <FluentDivider />
-        <br />
-        <div>
-            <span>分组</span>
-            <FluentSelect @bind-Value="GroupIdOfFeedToAdd" TValue=int>
-                @foreach (var group in FeedGroups)
-                        {
-                <FluentOption Value=group.Id>@group.Name (@group.Id)</FluentOption>
-                        }
-            </FluentSelect>
-        </div>
-        <FluentDivider />
-        <br />
-        <FluentButton Appearance=Appearance.Accent @onclick="async ()=>  await AddFeedAsync(this.FeedToAdd,GroupIdOfFeedToAdd)">确定</FluentButton>
-        <FluentButton @onclick="()=>this.addDialogIsOpen=false">取消</FluentButton>
-    </FluentCard>
-</FluentDialog>
+
 <div>
     <FluentButton Appearance=Appearance.Accent @onclick="async () => await RefreshAllFeeds()" style="width:10em;align-self:flex-end;">刷新所有RSS源</FluentButton>
     <FluentProgress Paused=!feedRefreshing Value="feedRefreshPercent">@progressDescription</FluentProgress>
@@ -67,6 +43,29 @@
             </RowItemTemplate>
         </FluentDataGrid>
     </FluentCard>
+    <FluentDialog Modal=true Hidden=@(!addDialogIsOpen)>
+        <h1>新增订阅</h1>
+        <br />
+        <FluentTextField style="width:100%;" Placeholder="https://example.com/feed/" @bind-Value="this.FeedToAdd.SubscribeLink">订阅地址/URL</FluentTextField>
+        <FluentDivider />
+        <br />
+        <FluentSwitch @bind-Checked="this.FeedToAdd.IsFavorite">设为收藏</FluentSwitch>
+        <FluentDivider />
+        <br />
+        <div>
+            <span>分组</span>
+            <FluentSelect @bind-Value="GroupIdOfFeedToAdd" TValue=int>
+                @foreach (var group in FeedGroups)
+                    {
+                <FluentOption Value=group.Id>@group.Name (@group.Id)</FluentOption>
+                    }
+            </FluentSelect>
+        </div>
+        <FluentDivider />
+        <br />
+        <FluentButton Appearance=Appearance.Accent @onclick="async ()=>  await AddFeedAsync(this.FeedToAdd,GroupIdOfFeedToAdd)">确定</FluentButton>
+        <FluentButton @onclick="()=>this.addDialogIsOpen=false">取消</FluentButton>
+    </FluentDialog>
 </div>
 
 @code {

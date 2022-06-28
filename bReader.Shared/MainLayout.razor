@@ -1,14 +1,15 @@
 ﻿@inherits LayoutComponentBase
 @inject IFeedService FeedService
 @using System.Linq
+@using Microsoft.Fast.Components.FluentUI.DesignTokens
+
 @* Almost every page uses this varible, so we just set it as a CascadingParameter to reduce repeated db query, more importantly, share their state*@
 <CascadingValue Value="FeedGroups">
     <CascadingValue Value="FavoriteFeeds">
         <CascadingValue TValue="Func<Task>" Value="RefreshLayout">
-
-            <div class="page">
+            <div id="page" @ref=page>
                 <div class="menu">
-                    <NavMenu />
+                    <NavMenu OnThemeChanging="SwitchTheme" />
                 </div>
                 <main>
                     <div class="top-row">
@@ -19,20 +20,30 @@
                     <article class="content">
                         @Body
                     </article>
-
                 </main>
             </div>
         </CascadingValue>
     </CascadingValue>
 </CascadingValue>
-@code{
+@code {
     private ICollection<FeedGroupDto> FeedGroups { get; set; } = new List<FeedGroupDto>();
-    private ICollection<FeedDto> FavoriteFeeds { get; set; }= new List<FeedDto>();
+    private ICollection<FeedDto> FavoriteFeeds { get; set; } = new List<FeedDto>();
     /// <summary>
     /// public method to force refresh FeedGroups data, please note this don't include their items.
     /// </summary>
     /// <returns></returns>
     public Func<Task> RefreshLayout { get; set; }
+
+    [Inject]
+    private BaseLayerLuminance BaseLayerLuminance { get; set; } = default!;
+    float baseLayerLuminance = 1;
+    private ElementReference page;
+
+    public void SwitchTheme()
+    {
+        baseLayerLuminance = baseLayerLuminance == 0.15f ? 0.98f : 0.15f;
+    }
+
     protected async override Task OnInitializedAsync()
     {
         this.RefreshLayout = async () =>
@@ -51,4 +62,13 @@
         if (FeedGroups == null || FeedGroups.Count() == 0)
             await this.RefreshLayout();
     }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            await BaseLayerLuminance.SetValueFor(page, baseLayerLuminance);
+            //await DesignTokens.Direction.SetValueFor(container, dir.ToString());
+        }
+    }
+
 }

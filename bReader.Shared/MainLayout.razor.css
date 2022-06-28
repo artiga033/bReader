@@ -1,4 +1,4 @@
-.page {
+#page {
     position: relative;
     display: flex;
     flex-direction: column;
@@ -15,7 +15,7 @@ main {
 }
 
 .top-row {
-    background-color: var(--semanticColors-BodyBackground);
+/*    background-color: var(--neutral-fill-layer-rest);*/
     border-bottom: 1px solid #d6d5d5;
     justify-content: space-between;
     height: 3.5rem;
@@ -48,7 +48,7 @@ main {
 }
 
 @media (min-width: 641px) {
-    .page {
+    #page {
         flex-direction: row;
     }
 

@@ -2,12 +2,13 @@
     <div class="top-row">
         <span class="navbar-toggler"><FluentButton @onclick="ToggleNavMenu"> <FluentIcon Name="navigation" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size20 Filled=false></FluentIcon></FluentButton></span>
         <span style="color:darkcyan;text-align:center;">bReader</span>
-        <span> <FluentButton @onclick="SwitchTheme"><FluentIcon Name="@themeIcon" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size20 Filled=false></FluentIcon></FluentButton> </span>
+        <span> <FluentButton @onclick="OnThemeChanging" ><FluentIcon Name="@themeIcon" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size20 Filled=false></FluentIcon></FluentButton> </span>
     </div>
     <nav class="@NavMenuCssClass">
+
         <FluentListbox TValue=NavLink>
             <FluentOption>
-                <NavLink @onclick="ToggleNavMenu" href="/"><FluentIcon Name="home" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size16 Filled=false /> 首页 </NavLink>
+                <NavLink @onclick="ToggleNavMenu" href="/"><FluentIcon Name="home" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size16 Filled=false />  首页 </NavLink>
             </FluentOption>
             <FluentOption>
                 <NavLink @onclick="ToggleNavMenu" href="settings"> <FluentIcon Name="settings" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size16 Filled=false /> 设置 </NavLink>
@@ -61,6 +62,8 @@
     private ICollection<FeedGroupDto> FeedGroups { get; set; }
     [CascadingParameter]
     private ICollection<FeedDto> FavoriteFeeds { get; set; }
+    [Parameter]
+    public EventCallback OnThemeChanging{ get; set; }
     protected override void OnInitialized()
     {
         base.OnInitialized();
@@ -68,8 +71,8 @@
 
     private bool isDark;
     private string themeIcon => isDark ? "weather_moon" : "weather_sunny";
-    private void SwitchTheme()
-    {
-        isDark = !isDark;
-    }
+    //private void SwitchTheme()
+    //{
+    //    isDark = !isDark;
+    //}
 }
