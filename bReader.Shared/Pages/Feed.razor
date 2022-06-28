@@ -5,11 +5,11 @@
 
 @if (currentFeed.IsFavorite)
 {
-    <IconButton IconName="FavoriteStarFill" Style="color:gold" OnClick="async () => await SetCurrentFeedNotFavoriteAsync()"></IconButton>
+    <FluentButton @onclick="async () => await SetCurrentFeedNotFavoriteAsync()"> <FluentIcon Name="star" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size20 Filled=true style="color:gold"></FluentIcon></FluentButton>
 }
 else
 {
-    <IconButton IconName="FavoriteStar" OnClick="async ()=> await SetCurrentFeedFavoriteAsync()"></IconButton>
+    <FluentButton @onclick="async ()=> await SetCurrentFeedFavoriteAsync()"><FluentIcon Name="star" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size20 Filled=false></FluentIcon></FluentButton>
 }
 <h3>@currentFeed.Title</h3>
 <summary class="text-secondary text-light">@currentFeed.Description</summary>

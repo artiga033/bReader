@@ -1,5 +1,4 @@
-﻿@using BlazorFluentUI
-@using Humanizer
+﻿@using Humanizer
 
 @if (display)
 {
@@ -8,48 +7,51 @@
         {
             <h3>@Label</h3>
         }
-        <PrimaryButton @onclick="async()=> await SetItemsReadAsync(items.Select(x=>x.Pk))">全部设为已读</PrimaryButton>
+        <FluentButton Appearance="Appearance.Accent" @onclick="async()=> await SetItemsReadAsync(items.Select(x=>x.Pk))">全部设为已读</FluentButton>
         <ul class="items-container">
             @foreach (var item in items)
             {
                 <li>
-                    <div class=@($"feed-item-previewer card {(item.IsRead ? string.Empty : NotReadClass)}")>
-                        <span class="item-basic-info">
-                            <span class="headline">
-                                <NavLink href=@($"feeditem/{item.Pk}")>
-                                    <h3>@item.Title</h3>
-                                </NavLink>
-                                @item.SourceFeed.Title
+                    <div class=@(item.IsRead ? string.Empty : NotReadClass)>
+                        <FluentCard class=@($"feed-item-previewer")>
+                            <span class="item-basic-info">
+                                <span class="headline">
+                                    <NavLink href=@($"feeditem/{item.Pk}")>
+                                        <h3>@item.Title</h3>
+                                    </NavLink>
+                                    @item.SourceFeed.Title
+                                </span>
+                                <span>
+                                    <span title="发布时间">
+                                        <FluentIcon Name="calendar_edit" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size20 Filled=false />@item.PublishDate.Humanize()
+                                    </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    @if (item.LastUpdatedTime != default(DateTimeOffset))
+                                    {
+                                        <span title="更新时间">
+                                            <FluentIcon Name="calendar_clock" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size20 Filled=false />@item.LastUpdatedTime.Humanize()
+                                        </span>
+                                    }
+                                </span>
                             </span>
-                            <span>
-                                <span title="发布时间">
-                                    <Icon IconName="TimeEntry" />@item.PublishDate.Humanize()
-                                </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                @if (item.LastUpdatedTime != default(DateTimeOffset))
-                                {
-                                    <span title="更新时间">
-                                        <Icon IconName="ReminderTime" />@item.LastUpdatedTime.Humanize()
-                                    </span>
-                                }
-                            </span>
-                        </span>
-                        @foreach (var i in item.Authors)
-                        {
-                            <a href="@(i.Uri ?? "javascript:void;")" class="text-secondary">@($"{i.Name}<{i.Email}>")</a>
-                        }
-                        @((MarkupString)item.Summary)
+                            @foreach (var i in item.Authors)
+                            {
+                                <a href="@(i.Uri ?? "javascript:void;")" class="text-secondary">@($"{i.Name}<{i.Email}>")</a>
+                            }
+                            @((MarkupString)item.Summary)
+                        </FluentCard>
                     </div>
                 </li>
             }
         </ul>
         <div class="pagination-bar">
-            <CommandButton Text="前一页" Disabled="@(!items.HasPrevious)" OnClick="async ()=> await ChangePage(items.CurrentPage-1)" />
+            <FluentButton Disabled="@(!items.HasPrevious)" @onclick="async ()=> await ChangePage(items.CurrentPage-1)">前一页</FluentButton>
             @* Something's wrong with the BFU's component, so we'll just use pure html element*@
             <input class=".ms-TextField-field" @onchange="async (ChangeEventArgs __e)=>await ChangePage(int.Parse(__e.Value.ToString()))" type="number" />
 
-            <CommandButton Text="后一页" Disabled="@(!items.HasNext)" OnClick="async ()=> await ChangePage(items.CurrentPage+1)" />
+            <FluentButton Disabled="@(!items.HasNext)" @onclick="async ()=> await ChangePage(items.CurrentPage+1)">后一页</FluentButton>
         </div>
-    </div> }
+    </div>
+}
 @code {
     [CascadingParameter]
     public Func<Task> RefreshLayout { get; set; }
@@ -61,7 +63,7 @@
     [Inject]
     private IFeedService FeedService { get; set; }
     private const string NotReadClass = "not-read";
-    public bool display{ get; set; }
+    public bool display { get; set; }
 
     public async Task ChangePage(int page)
     {
@@ -80,7 +82,7 @@
     protected override async Task OnInitializedAsync()
     {
         await ChangePage(1);
-        if (items!=null&&items.Count!=0)
+        if (items != null && items.Count != 0)
             this.display = true;
         await base.OnInitializedAsync();
     }

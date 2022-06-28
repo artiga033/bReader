@@ -1,15 +1,18 @@
 ﻿@using bReader.Shared.Utils
 @inject ISettingService SettingService
-<NumericTextField Label="RSS源更新周期(分钟)" @bind-Value="@AppSettings[SettingKeyMap.SourceUpdatePeriod]" @bind-Value:event="OnChange"></NumericTextField>
-<NumericTextField Label="每页展示的Feeditem数" @bind-Value="@AppSettings[SettingKeyMap.PageSize]" @bind-Value:event="OnChange"></NumericTextField>
-<PrimaryButton Text="保存设置" OnClick="async()=>await this.SaveSettingsAsync()"></PrimaryButton>
-<Text style=@resultVisibility> <Icon IconName=@saveStatusIcon />@(saveSuccess?"保存成功":"保存失败")</Text>
+<FluentTextField @bind-Value="@AppSettings[SettingKeyMap.SourceUpdatePeriod]">RSS源更新周期(分钟)</FluentTextField>
+<FluentDivider />
+<FluentTextField @bind-Value="@AppSettings[SettingKeyMap.PageSize]">每页展示的Feeditem数</FluentTextField>
+<FluentDivider />
+<FluentButton Appearance=Appearance.Accent @onclick="async()=>await this.SaveSettingsAsync()">保存设置</FluentButton>
+<FluentDivider />
+<FluentCard style=@resultVisibility> <FluentIcon Name=@saveStatusIcon Size=Microsoft.Fast.Components.FluentUI.IconSize.Size20 Filled=false />@(saveSuccess?"保存成功":"保存失败")</FluentCard>
 @code {
     [CascadingParameter]
     public Func<Task> RefreshLayout { get; set; }
     private Dictionary<string, string> AppSettings { get; set; }
     private bool saveSuccess, savecomplete;
-    private string saveStatusIcon => saveSuccess ? "CheckMark" : "ErrorBadge";
+    private string saveStatusIcon => saveSuccess ? "checkmark" : "error_circle";
     private string resultVisibility => $"visibility:{(savecomplete ? "visible" : "hidden")}";
     protected async override Task OnInitializedAsync()
     {
@@ -22,4 +25,4 @@
         savecomplete = true;
         await RefreshLayout();
     }
-}
+    }

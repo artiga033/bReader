@@ -1,9 +1,8 @@
-using BlazorFluentUI;
 using bReader.Server.Data;
 using bReader.Server.Services;
 using bReader.Shared.Services;
 using Microsoft.EntityFrameworkCore;
-
+using Microsoft.Fast.Components.FluentUI;
 namespace bReader.Server
 {
     public class Startup
@@ -24,7 +23,9 @@ namespace bReader.Server
             services.AddDbContextFactory<FeedDbContext>(options =>
                 options.UseSqlite(Configuration.GetConnectionString("bReader")));
 
-            services.AddBlazorFluentUI();
+            services.AddHttpClient();
+            //services.AddBlazorFluentUI();
+            services.AddFluentUIComponents();
 
             services.AddAutoMapper(typeof(bReader.Shared.MapperProfile));
             services.AddScoped<IFeedService, FeedDataService>();
