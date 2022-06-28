@@ -47,10 +47,10 @@ jobs:
     - name: Create runtime Windows-ReadyToRun
       run: Compress-Archive -Path .\bReader.Server\bin\release\net6.0\win-x64-ReadyToRun\publish\ -DestinationPath .\bReader-Windows-ReadyToRun_${{github.event.inputs.version}}.zip
  
-    - name: Release
-      uses: softprops/action-gh-release@v0.1.14
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
       with:
-        files: |
+        path: |
           bReader-runtime-crossplat_${{github.event.inputs.version}}.zip
           bReader-linux-x64_${{github.event.inputs.version}}.zip
           bReader-windows-x64_${{github.event.inputs.version}}.zip
