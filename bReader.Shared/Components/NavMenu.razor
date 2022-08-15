@@ -2,7 +2,7 @@
     <div class="top-row">
         <span class="navbar-toggler"><FluentButton @onclick="ToggleNavMenu"> <FluentIcon Name="navigation" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size20 Filled=false></FluentIcon></FluentButton></span>
         <span style="color:darkcyan;text-align:center;">bReader</span>
-        <span> <FluentButton @onclick="OnThemeChanging" ><FluentIcon Name="@themeIcon" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size20 Filled=false></FluentIcon></FluentButton> </span>
+        <span> <FluentButton @onclick="SwitchTheme"><FluentIcon Name="@themeIcon" Size=Microsoft.Fast.Components.FluentUI.IconSize.Size20 Filled=false></FluentIcon></FluentButton> </span>
     </div>
     <nav class="@NavMenuCssClass">
 
@@ -17,31 +17,29 @@
         <FluentDivider />
 
         <FluentAccordion>
-            <FluentAccordionItem Expanded=true>
-                <span slot="heading"> 收藏</span>
+            <FluentAccordionItem Heading="收藏" Expanded=true>
                 <FluentListbox TValue=NavLink>
                     @foreach (var fav in FavoriteFeeds)
-                        {
-                    <FluentOption>
-                        <NavLink @onclick="ToggleNavMenu" href=@($"feed/{fav.Pk}")><span class="nav-content" data-unread=@(fav.UnreadCount)> @fav.Title </span></NavLink>
-                    </FluentOption>
-                        }
+                    {
+                        <FluentOption>
+                            <NavLink @onclick="ToggleNavMenu" href=@($"feed/{fav.Pk}")><span class="nav-content" data-unread=@(fav.UnreadCount)> @fav.Title </span></NavLink>
+                        </FluentOption>
+                    }
                 </FluentListbox>
             </FluentAccordionItem>
             <FluentDivider />
             @foreach (var group in FeedGroups)
             {
-                <FluentAccordionItem>
-                    <span slot="heading"> @group.Name</span>
+                <FluentAccordionItem Heading="@group.Name">
                     <FluentListbox TValue=NavLink>
                         @foreach (var feed in group.Feeds)
-                    {
-                        <FluentOption>
-                            <NavLink @onclick="ToggleNavMenu" href=@($"feed/{feed.Pk}")><span class="nav-content" data-unread=@(feed.UnreadCount)> @feed.Title </span></NavLink>
-                        </FluentOption>
-                    }
-                </FluentListbox>
-            </FluentAccordionItem>
+                        {
+                            <FluentOption>
+                                <NavLink @onclick="ToggleNavMenu" href=@($"feed/{feed.Pk}")><span class="nav-content" data-unread=@(feed.UnreadCount)> @feed.Title </span></NavLink>
+                            </FluentOption>
+                        }
+                    </FluentListbox>
+                </FluentAccordionItem>
             }
         </FluentAccordion>
     </nav>
@@ -56,14 +54,13 @@
     {
         collapseNavMenu = !collapseNavMenu;
     }
-    //[CascadingParameter]
-    //private IEnumerable<FeedDto> FeedDtos { get; set; } = new List<FeedDto>();
+
     [CascadingParameter]
     private ICollection<FeedGroupDto> FeedGroups { get; set; }
     [CascadingParameter]
     private ICollection<FeedDto> FavoriteFeeds { get; set; }
     [Parameter]
-    public EventCallback OnThemeChanging{ get; set; }
+    public EventCallback OnThemeChanging { get; set; }
     protected override void OnInitialized()
     {
         base.OnInitialized();
@@ -71,8 +68,9 @@
 
     private bool isDark;
     private string themeIcon => isDark ? "weather_moon" : "weather_sunny";
-    //private void SwitchTheme()
-    //{
-    //    isDark = !isDark;
-    //}
+    private async Task SwitchTheme()
+    {
+        isDark = !isDark;
+        await OnThemeChanging.InvokeAsync();
+    }
 }

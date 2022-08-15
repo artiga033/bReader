@@ -24,7 +24,6 @@ namespace bReader.Server
                 options.UseSqlite(Configuration.GetConnectionString("bReader")));
 
             services.AddHttpClient();
-            //services.AddBlazorFluentUI();
             services.AddFluentUIComponents();
 
             services.AddAutoMapper(typeof(bReader.Shared.MapperProfile));

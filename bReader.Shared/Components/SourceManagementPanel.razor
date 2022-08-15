@@ -10,15 +10,7 @@
     </FluentToolbar>
     <FluentDivider />
     <FluentCard>
-        @*        <DetailsList ItemsSource="Feeds"
-            Columns="Columns"
-            GetKey=@(item => item.Pk)
-            LayoutMode="DetailsListLayoutMode.Justified"
-            TItem="FeedDto"
-            Selection="selection"
-            SelectionMode="SelectionMode.Multiple">
-            </DetailsList>*@
-        <FluentDataGrid GenerateHeader=GenerateHeaderOptions.Default RowsData=Feeds ColumnDefinitions=feedGridColumns GridTemplateColumns="1fr 3fr 5fr 2fr 1fr">
+        <FluentDataGrid GenerateHeader=GenerateHeaderOption.Default RowsData=Feeds ColumnDefinitions=feedGridColumns GridTemplateColumns="1fr 3fr 5fr 2fr 1fr">
             <HeaderCellTemplate>
                 @context.Title
             </HeaderCellTemplate>
@@ -131,17 +123,4 @@
         addDialogIsOpen = true;
         StateHasChanged();
     }
-    //moved to bReader.Shared.Extensions as extension method for IEnumable<FeedGroup>
-    //private System.Collections.Generic.List<FeedDto> GetFeedsFromGrouped(ICollection<FeedGroupDto> groups)
-    //{
-    //    System.Collections.Generic.List<FeedDto> r = new();
-    //    foreach (var g in groups)
-    //    {
-    //        foreach (var f in g.Feeds)
-    //        {
-    //            r.Add(f);
-    //        }
-    //    }
-    //    return r;
-    //}
 }
