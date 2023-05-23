@@ -1,3 +1,8 @@
+# ARCHIVED 
+### You may also like [artiga033/FluiReader](github.com/artiga033/FluiReader)
+
+---
+
 # bReader
 [![](https://img.shields.io/github/v/release/artiga033/bReader)](https://github.com/artiga033/bReader/releases)
 [![](https://img.shields.io/badge/-Blazor-%23780C93?logo=blazor)](https://blazor.net)
